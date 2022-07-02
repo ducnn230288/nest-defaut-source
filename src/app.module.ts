@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_PIPE } from '@nestjs/core';
 import { CommonModule } from './common/common.module';
 import appConfig from './config/app.config';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import appConfig from './config/app.config';
         synchronize: true,
       }),
     }),
+    AuthModule,
     CoffeeRatingModule,
     CommonModule,
   ],
