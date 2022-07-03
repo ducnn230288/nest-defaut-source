@@ -1,34 +1,30 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { Expose } from 'class-transformer';
-import { Profile } from './profile.entity';
+export const GROUP_USER = 'group_user_details';
+export const GROUP_ALL_USERS = 'group_all_users';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  @Expose()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  @Expose({ groups: [GROUP_USER, GROUP_ALL_USERS] })
+  id: string;
+
+  @Column()
+  @Expose({ groups: [GROUP_USER, GROUP_ALL_USERS] })
+  firstName: string;
+
+  @Column()
+  @Expose({ groups: [GROUP_USER, GROUP_ALL_USERS] })
+  lastName: string;
 
   @Column({ unique: true })
-  @Expose()
+  @Expose({ groups: [GROUP_USER] })
   username: string;
 
   @Column()
   password: string;
 
   @Column({ unique: true })
-  @Expose()
+  @Expose({ groups: [GROUP_USER] })
   email: string;
-
-  @Column()
-  @Expose()
-  firstName: string;
-
-  @Column()
-  @Expose()
-  lastName: string;
-
-  @OneToOne(() => Profile)
-  @JoinColumn()
-  @Expose()
-  profile: Profile;
 }

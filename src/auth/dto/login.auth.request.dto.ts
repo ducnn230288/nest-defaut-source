@@ -1,6 +1,6 @@
 import { Length } from 'class-validator';
 
-export class LoginAuthDto {
+export class LoginAuthRequestDto {
   @Length(5)
   readonly username: string;
   @Length(8)

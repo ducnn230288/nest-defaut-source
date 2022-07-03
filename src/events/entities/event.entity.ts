@@ -3,8 +3,8 @@ import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 @Index(['name', 'type'])
 @Entity()
 export class Event {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   type: string;

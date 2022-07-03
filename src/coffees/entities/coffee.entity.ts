@@ -3,8 +3,8 @@ import { Flavor } from './flavor.entity';
 
 @Entity()
 export class Coffee {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   name: string;

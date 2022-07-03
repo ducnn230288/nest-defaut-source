@@ -21,6 +21,7 @@ async function bootstrap() {
     .setTitle('Iluvcoffee')
     .setDescription('Coffee application')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
