@@ -1,4 +1,6 @@
+import { User } from '../entities/user.entity';
+
 export class LoginAuthResponsesDto {
-  readonly userId: string;
-  readonly token: string;
+  message: string;
+  data: User;
 }
