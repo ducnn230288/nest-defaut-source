@@ -1,11 +1,9 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoffeesModule } from './coffees/coffees.module';
-// import { AppDataSource } from '../ormconfig'; AppDataSource.options
 import { CoffeeRatingModule } from './coffee-rating/coffee-rating.module';
 import { ConfigModule } from '@nestjs/config';
 import { APP_PIPE } from '@nestjs/core';
-import { CommonModule } from './common/common.module';
 import appConfig from './config/app.config';
 import { AuthModule } from './auth/auth.module';
 
@@ -29,7 +27,6 @@ import { AuthModule } from './auth/auth.module';
     }),
     AuthModule,
     CoffeeRatingModule,
-    CommonModule,
   ],
   controllers: [],
   providers: [{ provide: APP_PIPE, useClass: ValidationPipe }],

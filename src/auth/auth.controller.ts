@@ -29,8 +29,6 @@ export class AuthController {
     return {
       message: 'Login Success',
       data: user,
-      // userId: user.id,
-      // token: this.authService.getTokenForUser(user),
     };
   }
 

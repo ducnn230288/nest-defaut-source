@@ -1,8 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { WrapResponseInterceptor } from './common/interceptors/wrap-response.interceptor';
-import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -25,7 +23,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
-  app.useGlobalInterceptors(new WrapResponseInterceptor(), new TimeoutInterceptor());
   await app.listen(3000);
 }
 bootstrap();

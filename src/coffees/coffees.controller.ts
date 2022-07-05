@@ -3,8 +3,6 @@ import { CoffeesService } from './coffees.service';
 import { CreateCoffeeDto } from './dto/create.coffee.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { UpdateCoffeeDto } from './dto/update.coffee.dto';
-import { Protocol } from '../common/decorators/protocol.decorator';
-import { ParseIntPipe } from '../common/pipes/parse-int.pipe';
 import { ApiForbiddenResponse, ApiTags } from '@nestjs/swagger';
 import { Coffee } from './entities/coffee.entity';
 
@@ -15,12 +13,12 @@ export class CoffeesController {
 
   @ApiForbiddenResponse({ status: 403, description: 'Forbidden.' })
   @Get()
-  async findAll(@Protocol('https') protocol: string, @Query() paginationQuery: PaginationQueryDto): Promise<Coffee[]> {
+  async findAll(@Query() paginationQuery: PaginationQueryDto): Promise<Coffee[]> {
     return await this.coffeesService.findAll(paginationQuery);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Coffee> {
+  findOne(@Param('id') id: number): Promise<Coffee> {
     return this.coffeesService.findOne('' + id);
   }
 
