@@ -14,8 +14,10 @@ import { AuthService } from './auth.service';
 import { User, GROUP_ALL_USERS, GROUP_USER } from './entities/user.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LoginAuthRequestDto } from './dto/login.auth.request.dto';
-import { RegisterUserDto } from './dto/register.user.dto';
-import { LoginAuthResponsesDto } from './dto/login.auth.responses.dto';
+import { RegisterAuthRequestDto } from './dto/register.auth.request.dto';
+import { DefaultAuthResponsesDto } from './dto/default.auth.responses.dto';
+import { RegisterAuthResponsesDto } from './dto/register.auth.responses.dto';
+import { ProfileAuthResponsesDto } from './dto/profile.auth.responses.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -24,8 +26,12 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() loginAuthDto: LoginAuthRequestDto): Promise<LoginAuthResponsesDto> {
+  @SerializeOptions({
+    groups: [GROUP_USER],
+  })
+  async login(@Body() loginAuthDto: LoginAuthRequestDto): Promise<DefaultAuthResponsesDto> {
     const user = await this.authService.login(loginAuthDto);
+    user['token'] = this.authService.getTokenForUser(user);
     return {
       message: 'Login Success',
       data: user,
@@ -36,12 +42,12 @@ export class AuthController {
   @SerializeOptions({
     groups: [GROUP_ALL_USERS],
   })
-  async register(@Body() createUserDto: RegisterUserDto): Promise<User> {
-    return await this.authService.register(createUserDto);
-    // return {
-    //   ...(await this.userRepository.save(user)),
-    //   token: this.authService.getTokenForUser(user),
-    // };
+  async register(@Body() createUserDto: RegisterAuthRequestDto): Promise<RegisterAuthResponsesDto> {
+    const user = await this.authService.register(createUserDto);
+    return {
+      message: 'Register Success',
+      data: user,
+    };
   }
 
   @Get('profile')
@@ -50,7 +56,10 @@ export class AuthController {
   @SerializeOptions({
     groups: [GROUP_USER],
   })
-  async getProfile(@CurrentUser() user: User): Promise<User> {
-    return user;
+  async getProfile(@CurrentUser() user: User): Promise<ProfileAuthResponsesDto> {
+    return {
+      message: 'Get Profile Success',
+      data: user,
+    };
   }
 }

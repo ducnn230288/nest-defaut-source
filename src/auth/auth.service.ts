@@ -5,7 +5,7 @@ import { User } from './entities/user.entity';
 import { LoginAuthRequestDto } from './dto/login.auth.request.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RegisterUserDto } from './dto/register.user.dto';
+import { RegisterAuthRequestDto } from './dto/register.auth.request.dto';
 
 @Injectable()
 export class AuthService {
@@ -41,7 +41,7 @@ export class AuthService {
     return user;
   }
 
-  async register(createUserDto: RegisterUserDto) {
+  async register(createUserDto: RegisterAuthRequestDto) {
     if (createUserDto.password !== createUserDto.retypedPassword) {
       throw new BadRequestException(['Passwords are not identical']);
     }

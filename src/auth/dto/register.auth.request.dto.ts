@@ -2,7 +2,7 @@ import { IsEmail, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { faker } from '@faker-js/faker';
 
-export class RegisterUserDto {
+export class RegisterAuthRequestDto {
   @Length(5)
   @ApiProperty({ example: faker.internet.userName().toLowerCase() })
   readonly username: string;
