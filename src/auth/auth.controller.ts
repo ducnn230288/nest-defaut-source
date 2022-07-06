@@ -26,9 +26,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @SerializeOptions({
-    groups: [GROUP_USER],
-  })
+  @SerializeOptions({ groups: [GROUP_USER] })
   async login(@Body() loginAuthDto: LoginAuthRequestDto): Promise<DefaultAuthResponsesDto> {
     const user = await this.authService.login(loginAuthDto);
     user['token'] = this.authService.getTokenForUser(user);
@@ -39,9 +37,7 @@ export class AuthController {
   }
 
   @Post('register')
-  @SerializeOptions({
-    groups: [GROUP_ALL_USERS],
-  })
+  @SerializeOptions({ groups: [GROUP_ALL_USERS] })
   async register(@Body() createUserDto: RegisterAuthRequestDto): Promise<RegisterAuthResponsesDto> {
     const user = await this.authService.register(createUserDto);
     return {
@@ -53,9 +49,7 @@ export class AuthController {
   @Get('profile')
   @UseGuards(AuthGuardJwt)
   @ApiBearerAuth()
-  @SerializeOptions({
-    groups: [GROUP_USER],
-  })
+  @SerializeOptions({ groups: [GROUP_USER] })
   async getProfile(@CurrentUser() user: User): Promise<ProfileAuthResponsesDto> {
     return {
       message: 'Get Profile Success',
