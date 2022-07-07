@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { CoffeesModule } from '../../src/coffees/coffees.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CreateCoffeeDto } from '../../src/coffees/dto/create.coffee.dto';
+import { CreateCoffeeRequestDto } from '../../src/coffees/dto/create.coffee.request.dto';
 import * as request from 'supertest';
 
 describe('[Feature] Coffees - /coffees', () => {
@@ -49,7 +49,7 @@ describe('[Feature] Coffees - /coffees', () => {
   it('Create [POST /]', async () => {
     return request(app.getHttpServer())
       .post('/coffees')
-      .send(coffee as CreateCoffeeDto)
+      .send(coffee as CreateCoffeeRequestDto)
       .expect(HttpStatus.CREATED)
       .then(({ body }) => {
         const expectedCoffee = jasmine.objectContaining({

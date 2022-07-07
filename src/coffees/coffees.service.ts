@@ -2,10 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Coffee } from './entities/coffee.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
-import { CreateCoffeeDto } from './dto/create.coffee.dto';
+import { CreateCoffeeRequestDto } from './dto/create.coffee.request.dto';
 import { Flavor } from './entities/flavor.entity';
-import { UpdateCoffeeDto } from './dto/update.coffee.dto';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { UpdateCoffeeRequestDto } from './dto/update.coffee.request.dto';
+import { PaginationQueryDto } from '../common/dto/pagination.query.dto';
 import { Event } from '../events/entities/event.entity';
 
 @Injectable()
@@ -14,20 +14,15 @@ export class CoffeesService {
     @InjectRepository(Coffee) private readonly coffeeRepository: Repository<Coffee>,
     @InjectRepository(Flavor) private readonly flavorRepository: Repository<Flavor>,
     private readonly connection: Connection,
-  ) {
-    // @Inject(COFFEE_BRANDS) coffeeBrands: string[],
-    // private readonly configService: ConfigService,
-    // const databaseHost = this.configService.get<string>('database.host', 'localhost');
-    // console.log(databaseHost);
-    // console.log(coffeeBrands);
-  }
+  ) {}
 
   findAll(paginationQuery: PaginationQueryDto) {
-    const { limit, offset } = paginationQuery;
+    const { perPage, page, filter, sort, fullTextSearch } = paginationQuery;
+    console.log({ filter, sort, fullTextSearch });
     return this.coffeeRepository.find({
       relations: ['flavors'],
-      skip: offset,
-      take: limit,
+      take: perPage,
+      skip: page,
     });
   }
 
@@ -42,13 +37,13 @@ export class CoffeesService {
     return coffee;
   }
 
-  async create(createCoffeeDto: CreateCoffeeDto) {
+  async create(createCoffeeDto: CreateCoffeeRequestDto) {
     const flavors = await Promise.all(createCoffeeDto.flavors.map((name) => this.preloadFlavorByName(name)));
     const coffee = this.coffeeRepository.create({ ...createCoffeeDto, flavors });
     return this.coffeeRepository.save(coffee);
   }
 
-  async update(id: string, updateCoffeeDto: UpdateCoffeeDto) {
+  async update(id: string, updateCoffeeDto: UpdateCoffeeRequestDto) {
     const flavors =
       updateCoffeeDto.flavors &&
       (await Promise.all(updateCoffeeDto.flavors.map((name) => this.preloadFlavorByName(name))));

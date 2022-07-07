@@ -8,6 +8,6 @@ export class DefaultAuthResponsesDto extends PartialType(DefaultResponsesDto) {
 }
 
 class DefaultAuthResponsesDataDto extends PartialType(OmitType(User, ['password'] as const)) {
-  @ApiProperty({ example: appConfig().exampleToken })
+  @ApiProperty({ example: appConfig().example.token, description: '' })
   readonly token?: string;
 }
