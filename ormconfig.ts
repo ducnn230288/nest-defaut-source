@@ -12,5 +12,5 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   migrationsRun: false,
   migrations: ['dist/**/migrations/*.js'],
-  migrationsTableName: 'histor  y',
+  migrationsTableName: 'history',
 });

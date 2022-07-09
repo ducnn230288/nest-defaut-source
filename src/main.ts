@@ -1,10 +1,24 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
+import { ConfigurationModule } from './configuration/configuration.module';
+import { ConfigurationService } from './configuration/configuration.service';
+import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { setupSwagger } from './setup-swagger';
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter(), { cors: true });
+  app.set('trust proxy', 1);
+  app.use(helmet());
+  app.setGlobalPrefix('/api');
+  app.use(
+    rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100, // limit each IP to 100 requests per windowMs
+    }),
+  );
+  app.enableVersioning();
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -15,14 +29,17 @@ async function bootstrap() {
       },
     }),
   );
-  const options = new DocumentBuilder()
-    .setTitle('Iluvcoffee')
-    .setDescription('Coffee application')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api', app, document);
-  await app.listen(3000);
+  const configService = app.select(ConfigurationModule).get(ConfigurationService);
+
+  if (configService.documentationEnabled) {
+    setupSwagger(app);
+  }
+  if (!configService.isDevelopment) {
+    app.enableShutdownHooks();
+  }
+  await app.listen(configService.appConfig.port);
+  console.info(`server running on ${await app.getUrl()}`);
+
+  return app;
 }
 bootstrap();
