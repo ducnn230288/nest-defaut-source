@@ -11,9 +11,9 @@ import { AuthController } from './auth.controller';
     TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       useFactory: () => ({
-        secret: process.env.AUTH_SECRET,
+        secret: process.env.JWT_PUBLIC_KEY,
         signOptions: {
-          expiresIn: '60m',
+          expiresIn: process.env.JWT_EXPIRATION_TIME,
         },
       }),
     }),

@@ -6,6 +6,7 @@ import { LoginAuthRequestDto } from './dto/login.auth.request.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RegisterAuthRequestDto } from './dto/register.auth.request.dto';
+import { TokenType } from '../../constants';
 
 @Injectable()
 export class AuthService {
@@ -17,8 +18,9 @@ export class AuthService {
 
   getTokenForUser(user: User): string {
     return this.jwtService.sign({
-      username: user.username,
-      sub: user.id,
+      userId: user.id,
+      type: TokenType.ACCESS_TOKEN,
+      role: user.role,
     });
   }
 

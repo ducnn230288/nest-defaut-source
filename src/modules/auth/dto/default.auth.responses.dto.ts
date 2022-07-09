@@ -5,9 +5,11 @@ import { Example } from '../../../constants';
 
 export class DefaultAuthResponsesDto extends PartialType(DefaultResponsesDto) {
   readonly data: DefaultAuthResponsesDataDto;
+  @ApiProperty({ example: Example.token, description: '' })
+  readonly accessToken: string;
+
+  @ApiProperty({ example: '3600', description: '' })
+  readonly expiresIn: number;
 }
 
-class DefaultAuthResponsesDataDto extends PartialType(OmitType(User, ['password'] as const)) {
-  @ApiProperty({ example: Example.token, description: '' })
-  readonly token?: string;
-}
+class DefaultAuthResponsesDataDto extends PartialType(OmitType(User, ['password'] as const)) {}
