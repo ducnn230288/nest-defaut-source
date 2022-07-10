@@ -1,5 +1,5 @@
-import { Body, Get, Post, SerializeOptions } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { Body, Get, Post } from '@nestjs/common';
+import { UserService } from './user.service';
 import { User, GROUP_ALL_USERS, GROUP_USER } from './entities/user.entity';
 import { LoginAuthRequestDto } from './dto/login.auth.request.dto';
 import { RegisterAuthRequestDto } from './dto/register.auth.request.dto';
@@ -8,11 +8,11 @@ import { RegisterAuthResponsesDto } from './dto/register.auth.responses.dto';
 import { ProfileAuthResponsesDto } from './dto/profile.auth.responses.dto';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { Auth, AuthUser, Public, Headers } from '../../decorators';
-import { Action } from '../../casl/userRoles';
+import { Action } from '../../casl/casl-ability.factory';
 
-@Headers('auth')
-export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+@Headers('user')
+export class UserController {
+  constructor(private readonly authService: UserService) {}
 
   @Public({ groups: [GROUP_USER] })
   @Post('login')

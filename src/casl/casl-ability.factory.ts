@@ -1,34 +1,44 @@
 import { Ability, AbilityBuilder, AbilityClass } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
-import { Action } from './userRoles';
-import { User } from '../modules/auth/entities/user.entity';
-import { CaslService } from './casl.service';
+import { User } from '../modules/user/entities/user.entity';
 
-export type Subjects = any;
-
-export type AppAbility = Ability<[Action, Subjects]>;
+export enum Action {
+  Manage = 'manage',
+  Create = 'create',
+  Read = 'read',
+  Update = 'update',
+  Delete = 'delete',
+}
+export type AppAbility = Ability<[Action, string]>;
 
 @Injectable()
 export class CaslAbilityFactory {
-  constructor(private caslService: CaslService) {}
   async createForUser(user: User) {
-    const { can, cannot, build } = new AbilityBuilder<Ability<[Action, Subjects]>>(Ability as AbilityClass<AppAbility>);
-    const caslPermissions = [];
-    // if (user.role == 'ADMIN') {
-    can(Action.Manage, 'all'); // read-write access to everything
-    caslPermissions.push({ action: Action.Manage, subject: 'all' });
-    // } else {
-    //const dbPermissions = [{action:'Read',subject:'User'},{action:'Delete',subject:'Cat'},]
-    // const dbPermissions = await this.caslService.findAllPermissionsOfUser(user);
-    // const caslPermissions = dbPermissions.permissions.map((p) => ({
-    //   action: Action[p.action],
-    //   subject: p.subject,
-    // }));
+    const ruleBuilder = new AbilityBuilder<Ability<[Action, string]>>(Ability as AbilityClass<AppAbility>);
+    const role = await user.role;
+    if (role) {
+      const permissions = await role.permissions;
+      for (const permission of permissions) {
+        const resourceName = permission.resourceName;
 
-    //can(Action.Update, Article, { authorId: user.id });
-    //cannot(Action.Delete, Article, { isPublished: true });
-    // }
-
-    return new Ability<[Action, Subjects]>(caslPermissions);
+        let condition: any;
+        if (permission.creatorOnly) {
+          condition = { userId: user.id };
+        }
+        if (permission.canCreate) {
+          ruleBuilder.can(Action.Create, resourceName, condition);
+        }
+        if (permission.canRead) {
+          ruleBuilder.can(Action.Read, resourceName, condition);
+        }
+        if (permission.canUpdate) {
+          ruleBuilder.can(Action.Update, resourceName, condition);
+        }
+        if (permission.canDelete) {
+          ruleBuilder.can(Action.Delete, resourceName, condition);
+        }
+      }
+      return ruleBuilder.build();
+    }
   }
 }

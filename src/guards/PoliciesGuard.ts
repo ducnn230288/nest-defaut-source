@@ -1,33 +1,23 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  SetMetadata,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
 import { AppAbility, CaslAbilityFactory } from '../casl/casl-ability.factory';
+import { Role } from '../modules/user/roles/role.entity';
 
 @Injectable()
 export class PoliciesGuard implements CanActivate {
-  constructor(
-    private reflector: Reflector,
-    private caslAbilityFactory: CaslAbilityFactory,
-  ) {}
+  constructor(private reflector: Reflector, private caslAbilityFactory: CaslAbilityFactory) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const policyHandlers =
-      this.reflector.get<PolicyHandler[]>(
-        CHECK_POLICIES_KEY,
-        context.getHandler(),
-      ) || [];
+    const policyHandlers = this.reflector.get<PolicyHandler[]>(CHECK_POLICIES_KEY, context.getHandler()) || [];
 
     const { user } = context.switchToHttp().getRequest();
+    const role: Role = await user.role;
+    if (role?.isSystemAdmin) return true;
+
     const ability = await this.caslAbilityFactory.createForUser(user);
 
-    return policyHandlers.every((handler) =>
-      this.execPolicyHandler(handler, ability),
-    );
+    return policyHandlers.every((handler) => this.execPolicyHandler(handler, ability));
   }
 
   private execPolicyHandler(handler: PolicyHandler, ability: AppAbility) {
@@ -46,5 +36,4 @@ type PolicyHandlerCallback = (ability: AppAbility) => boolean;
 
 export type PolicyHandler = IPolicyHandler | PolicyHandlerCallback;
 export const CHECK_POLICIES_KEY = 'check_policy';
-export const CheckPolicies = (...handlers: PolicyHandler[]) =>
-  SetMetadata(CHECK_POLICIES_KEY, handlers);
+export const CheckPolicies = (...handlers: PolicyHandler[]) => SetMetadata(CHECK_POLICIES_KEY, handlers);

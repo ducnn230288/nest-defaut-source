@@ -4,12 +4,13 @@ import { CoffeesModule } from './modules/coffees/coffees.module';
 import { CoffeeRatingModule } from './modules/coffee-rating/coffee-rating.module';
 import { ConfigModule } from '@nestjs/config';
 import { APP_PIPE } from '@nestjs/core';
-import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import * as path from 'path';
 import { ConfigurationService } from './configuration/configuration.service';
 import { ConfigurationModule } from './configuration/configuration.module';
 import { CaslModule } from './casl/casl.module';
+import { RolesModule } from './modules/user/roles/roles.module';
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { CaslModule } from './casl/casl.module';
       useFactory: (configService: ConfigurationService) => configService.postgresConfig,
       inject: [ConfigurationService],
     }),
-    AuthModule,
+    UserModule,
+    RolesModule,
     CaslModule,
     CoffeeRatingModule,
   ],

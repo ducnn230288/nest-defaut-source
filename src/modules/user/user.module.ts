@@ -2,13 +2,15 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthService } from './auth.service';
+import { UserService } from './user.service';
 import { JwtStrategy } from './jwt.strategy';
-import { AuthController } from './auth.controller';
+import { UserController } from './user.controller';
+import { Role } from './roles/role.entity';
+import { Permission } from './roles/permissions/permission.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Role, Permission]),
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: process.env.JWT_PUBLIC_KEY,
@@ -18,7 +20,7 @@ import { AuthController } from './auth.controller';
       }),
     }),
   ],
-  providers: [JwtStrategy, AuthService],
-  controllers: [AuthController],
+  providers: [JwtStrategy, UserService],
+  controllers: [UserController],
 })
-export class AuthModule {}
+export class UserModule {}

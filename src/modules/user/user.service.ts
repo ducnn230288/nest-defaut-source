@@ -7,29 +7,31 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RegisterAuthRequestDto } from './dto/register.auth.request.dto';
 import { TokenType } from '../../constants';
+import { BaseService } from '../../base/base.service';
+import { Role } from './roles/role.entity';
+import { Permission } from './roles/permissions/permission.entity';
 
 @Injectable()
-export class AuthService {
+export class UserService extends BaseService<User> {
   constructor(
+    @InjectRepository(User) public repo: Repository<User>,
+    @InjectRepository(Role) public repoRole: Repository<Role>,
+    @InjectRepository(Permission) public repoPermission: Repository<Permission>,
     private readonly jwtService: JwtService,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {}
+  ) {
+    super(repo);
+  }
 
   getTokenForUser(user: User): string {
     return this.jwtService.sign({
       userId: user.id,
       type: TokenType.ACCESS_TOKEN,
-      role: user.role,
+      // role: user.role,
     });
   }
 
-  async hashPassword(password: string): Promise<string> {
-    return await bcrypt.hash(password, 10);
-  }
-
   async login(loginAuthDto: LoginAuthRequestDto) {
-    const user = await this.userRepository.findOne({
+    const user = await this.repo.findOne({
       where: { username: loginAuthDto.username },
     });
 
@@ -48,16 +50,30 @@ export class AuthService {
       throw new BadRequestException(['Passwords are not identical']);
     }
 
-    const existingUser = await this.userRepository.findOne({
+    const existingUser = await this.repo.findOne({
       where: [{ username: createUserDto.username }, { email: createUserDto.email }],
     });
 
     if (existingUser) {
       throw new BadRequestException(['username or email is already taken']);
     }
-
-    const password = await this.hashPassword(createUserDto.password);
-    const user = this.userRepository.create({ ...createUserDto, password });
-    return await this.userRepository.save(user);
+    // let adminRole = await this.repoRole.findOne({ where: { isSystemAdmin: true } });
+    // if (!adminRole) {
+    // const adminRole = this.repoRole.create({ name: 'User', isSystemAdmin: false });
+    // await this.repoRole.save(adminRole);
+    // const adminPermission = this.repoPermission.create({
+    //   resourceName: 'User',
+    //   creatorOnly: true,
+    //   canRead: true,
+    //   canCreate: true,
+    //   canUpdate: true,
+    //   canDelete: true,
+    //   roleId: adminRole.id,
+    // });
+    // await this.repoPermission.save(adminPermission);
+    // }
+    // , roleId: adminRole.id
+    const user = this.repo.create({ ...createUserDto });
+    return await this.repo.save(user);
   }
 }
