@@ -1,5 +1,5 @@
 import { applyDecorators, SerializeOptions, SetMetadata, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiForbiddenResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/auth.guard';
 import { CheckPolicies, PoliciesGuard } from '../guards/PoliciesGuard';
 import { AppAbility } from '../casl/casl-ability.factory';
@@ -12,7 +12,8 @@ export function Auth(roles: Action, subjects: string, serializeOptions: ClassTra
     UseGuards(JwtAuthGuard, PoliciesGuard),
     CheckPolicies((ability: AppAbility) => ability?.can(roles, subjects)),
     ApiBearerAuth(),
-    ApiUnauthorizedResponse({ description: 'Unauthorized' }),
+    ApiUnauthorizedResponse({ description: 'Error: Unauthorized' }),
+    ApiForbiddenResponse({ description: 'Error: Forbidden' }),
   );
 }
 export const IS_PUBLIC_KEY = 'isPublic';
