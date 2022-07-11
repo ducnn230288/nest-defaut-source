@@ -7,6 +7,7 @@ import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { setupSwagger } from './setup-swagger';
+import { ResponseInterceptor } from './interceptors/response.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter(), { cors: true });
   app.set('trust proxy', 1);
@@ -29,6 +30,8 @@ async function bootstrap() {
       },
     }),
   );
+  app.useGlobalInterceptors(new ResponseInterceptor());
+
   const configService = app.select(ConfigurationModule).get(ConfigurationService);
 
   if (configService.documentationEnabled) {
