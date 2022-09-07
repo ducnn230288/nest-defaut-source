@@ -14,7 +14,10 @@ import { Action } from '../../casl/casl-ability.factory';
 export class UserController {
   constructor(private readonly authService: UserService) {}
 
-  @Public({ groups: [GROUP_USER] })
+  @Public({
+    summary: 'Login',
+    serializeOptions: { groups: [GROUP_USER] },
+  })
   @Post('login')
   async login(@I18n() i18n: I18nContext, @Body() loginAuthDto: LoginAuthRequestDto): Promise<DefaultAuthResponsesDto> {
     const user = await this.authService.login(loginAuthDto);
@@ -26,7 +29,10 @@ export class UserController {
     };
   }
 
-  @Public({ groups: [GROUP_ALL_USERS] })
+  @Public({
+    summary: 'Register',
+    serializeOptions: { groups: [GROUP_ALL_USERS] },
+  })
   @Post('register')
   async register(
     @I18n() i18n: I18nContext,
@@ -40,7 +46,11 @@ export class UserController {
   }
 
   @Get('profile')
-  @Auth(Action.Read, 'User', { groups: [GROUP_USER] })
+  @Auth({
+    roles: Action.Read,
+    subjects: 'User',
+    serializeOptions: { groups: [GROUP_USER] },
+  })
   async getProfile(@I18n() i18n: I18nContext, @AuthUser() user: User): Promise<ProfileAuthResponsesDto> {
     return {
       message: i18n.t('common.Success'),
