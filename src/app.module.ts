@@ -1,9 +1,8 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoffeesModule } from './modules/coffees/coffees.module';
 import { CoffeeRatingModule } from './modules/coffee-rating/coffee-rating.module';
 import { ConfigModule } from '@nestjs/config';
-import { APP_PIPE } from '@nestjs/core';
 import { UserModule } from './modules/user/user.module';
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import * as path from 'path';
@@ -38,6 +37,5 @@ import { RolesModule } from './modules/user/roles/roles.module';
     CoffeeRatingModule,
   ],
   controllers: [],
-  providers: [{ provide: APP_PIPE, useClass: ValidationPipe }],
 })
 export class AppModule {}

@@ -20,16 +20,6 @@ async function bootstrap() {
     }),
   );
   app.enableVersioning();
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      forbidNonWhitelisted: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
-    }),
-  );
   app.useGlobalInterceptors(new ResponseInterceptor());
 
   const configService = app.select(ConfigurationModule).get(ConfigurationService);

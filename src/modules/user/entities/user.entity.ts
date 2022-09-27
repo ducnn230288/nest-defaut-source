@@ -1,15 +1,17 @@
 import { BeforeInsert, Column, Entity, ManyToOne } from 'typeorm';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../roles/role.entity';
 import { Base } from '../../../base/base.entity';
+import { Length } from 'class-validator';
 
 export const GROUP_USER = 'group_user_details';
 export const GROUP_ALL_USERS = 'group_all_users';
 
 @Entity()
+@Exclude()
 export class User extends Base {
   @Column()
   @Expose({ groups: [GROUP_USER, GROUP_ALL_USERS] })
@@ -24,10 +26,11 @@ export class User extends Base {
   @Column({ unique: true })
   @Expose({ groups: [GROUP_USER] })
   @ApiProperty({ example: faker.internet.userName().toLowerCase(), description: '' })
+  @Length(5)
   readonly username: string;
 
   @Column()
-  @Exclude()
+  @Length(8)
   password: string;
   @BeforeInsert()
   async hashPassword() {
@@ -43,5 +46,6 @@ export class User extends Base {
   roleId?: string;
 
   @ManyToOne(() => Role, (role) => role.users)
+  @Type(() => Role)
   role?: Promise<Role>;
 }

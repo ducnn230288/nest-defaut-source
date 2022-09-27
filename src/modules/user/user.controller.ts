@@ -1,4 +1,4 @@
-import { Body, Get, Post } from '@nestjs/common';
+import { Body, Get, Post, ValidationPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User, GROUP_ALL_USERS, GROUP_USER } from './entities/user.entity';
 import { LoginAuthRequestDto } from './dto/login.auth.request.dto';
@@ -9,6 +9,7 @@ import { ProfileAuthResponsesDto } from './dto/profile.auth.responses.dto';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { Auth, AuthUser, Public, Headers } from '../../decorators';
 import { Action } from '../../casl/casl-ability.factory';
+import { SerializerBody } from '../../common/pipe/serializer-body.pipe';
 
 @Headers('user')
 export class UserController {
@@ -19,7 +20,11 @@ export class UserController {
     serializeOptions: { groups: [GROUP_USER] },
   })
   @Post('login')
-  async login(@I18n() i18n: I18nContext, @Body() loginAuthDto: LoginAuthRequestDto): Promise<DefaultAuthResponsesDto> {
+  async login(
+    @I18n() i18n: I18nContext,
+    @Body(new SerializerBody([GROUP_USER]))
+    loginAuthDto: LoginAuthRequestDto,
+  ): Promise<DefaultAuthResponsesDto> {
     const user = await this.authService.login(loginAuthDto);
     return {
       accessToken: this.authService.getTokenForUser(user),

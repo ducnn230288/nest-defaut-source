@@ -1,14 +1,4 @@
-import { Length } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { faker } from '@faker-js/faker';
-import { Example } from '../../../constants';
+import { PickType } from '@nestjs/swagger';
+import { User } from '../entities/user.entity';
 
-export class LoginAuthRequestDto {
-  @Length(5)
-  @ApiProperty({ example: faker.internet.userName().toLowerCase(), description: '' })
-  readonly username: string;
-
-  @Length(8)
-  @ApiProperty({ example: Example.password, description: '' })
-  readonly password: string;
-}
+export class LoginAuthRequestDto extends PickType(User, ['username', 'password'] as const) {}
