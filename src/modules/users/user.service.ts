@@ -2,10 +2,10 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from './user.entity';
-import { LoginAuthRequestDto } from './dto/request/login.auth.request.dto';
+import { LoginUserRequestDto } from './dto/request/login.user.request.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { RegisterAuthRequestDto } from './dto/request/register.auth.request.dto';
+import { RegisterUserRequestDto } from './dto/request/register.user.request.dto';
 import { TokenType } from '../../constants';
 import { BaseService } from '../../base/base.service';
 import { Role } from './roles/role.entity';
@@ -30,7 +30,7 @@ export class UserService extends BaseService<User> {
     });
   }
 
-  async login(loginAuthDto: LoginAuthRequestDto) {
+  async login(loginAuthDto: LoginUserRequestDto) {
     const user = await this.repo.findOne({
       where: { username: loginAuthDto.username },
     });
@@ -45,7 +45,7 @@ export class UserService extends BaseService<User> {
     return user;
   }
 
-  async register(createUserDto: RegisterAuthRequestDto) {
+  async register(createUserDto: RegisterUserRequestDto) {
     if (createUserDto.password !== createUserDto.retypedPassword) {
       throw new BadRequestException(['Passwords are not identical']);
     }

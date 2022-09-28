@@ -1,8 +1,8 @@
 import { Body, Get, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User, GROUP_ALL_USERS, GROUP_USER } from './user.entity';
-import { LoginAuthRequestDto } from './dto/request/login.auth.request.dto';
-import { RegisterAuthRequestDto } from './dto/request/register.auth.request.dto';
+import { LoginUserRequestDto } from './dto/request/login.user.request.dto';
+import { RegisterUserRequestDto } from './dto/request/register.user.request.dto';
 import { DefaultAuthResponseDto } from './dto/response/default.auth.response.dto';
 import { RegisterAuthResponseDto } from './dto/response/register.auth.response.dto';
 import { ProfileAuthResponseDto } from './dto/response/profile.auth.response.dto';
@@ -23,7 +23,7 @@ export class UserController {
   async login(
     @I18n() i18n: I18nContext,
     @Body(new SerializerBody([GROUP_USER]))
-    loginAuthDto: LoginAuthRequestDto,
+    loginAuthDto: LoginUserRequestDto,
   ): Promise<DefaultAuthResponseDto> {
     const user = await this.authService.login(loginAuthDto);
     return {
@@ -41,7 +41,7 @@ export class UserController {
   @Post('register')
   async register(
     @I18n() i18n: I18nContext,
-    @Body(new SerializerBody([GROUP_USER])) createUserDto: RegisterAuthRequestDto,
+    @Body(new SerializerBody([GROUP_USER])) createUserDto: RegisterUserRequestDto,
   ): Promise<RegisterAuthResponseDto> {
     const user = await this.authService.register(createUserDto);
     return {

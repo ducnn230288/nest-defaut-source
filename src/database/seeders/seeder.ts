@@ -3,6 +3,7 @@ import commandLineArgs from 'command-line-args';
 import { RolesService } from '../../modules/users/roles/roles.service';
 import { UserService } from '../../modules/users/user.service';
 import { CreateRoleRequestDto } from '../../modules/users/roles/dto/request/create.role.request.dto';
+import { CreateUserRequestDto } from '../../modules/users/dto/request/create.user.request.dto';
 
 export interface CommandLineArgsOptions extends commandLineArgs.CommandLineOptions {
   truncate: boolean;
@@ -50,7 +51,7 @@ export class Seeder {
         firstName: 'Site',
         lastName: 'Admin',
         roleId: adminRole.id,
-      },
+      } as CreateUserRequestDto,
     ]);
     await new Promise((resolve) => setTimeout(resolve, 500)); // https://github.com/nestjs/typeorm/issues/646
     this.logger.debug('Admin user created.');
