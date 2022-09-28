@@ -1,6 +1,6 @@
 import { Ability, AbilityBuilder, AbilityClass } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
-import { User } from '../modules/user/entities/user.entity';
+import { User } from '../modules/users/user.entity';
 
 export enum Action {
   Manage = 'manage',

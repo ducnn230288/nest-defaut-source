@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, SetMetadata } from '@nestjs/
 import { Reflector } from '@nestjs/core';
 
 import { AppAbility, CaslAbilityFactory } from '../casl/casl-ability.factory';
-import { Role } from '../modules/user/roles/role.entity';
+import { Role } from '../modules/users/roles/role.entity';
 
 @Injectable()
 export class PoliciesGuard implements CanActivate {

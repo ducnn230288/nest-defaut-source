@@ -1,9 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import commandLineArgs from 'command-line-args';
-import { RolesService } from '../../modules/user/roles/roles.service';
-import { UserService } from '../../modules/user/user.service';
-import { NewRoleInput } from '../../modules/user/roles/dto/new-role.input';
-import { NewUserInput } from '../../modules/user/dto/new-user.input';
+import { RolesService } from '../../modules/users/roles/roles.service';
+import { UserService } from '../../modules/users/user.service';
+import { CreateRoleRequestDto } from '../../modules/users/roles/dto/request/create.role.request.dto';
 
 export interface CommandLineArgsOptions extends commandLineArgs.CommandLineOptions {
   truncate: boolean;
@@ -44,15 +43,15 @@ export class Seeder {
       return adminUser;
     }
 
-    // await this.usersService.repo.save([
-    //   {
-    //     email: 'admin@site.com',
-    //     password: 'password',
-    //     firstName: 'Site',
-    //     lastName: 'Admin',
-    //     roleId: adminRole.id,
-    //   } as NewUserInput,
-    // ]);
+    await this.usersService.repo.save([
+      {
+        email: 'admin@site.com',
+        password: 'password',
+        firstName: 'Site',
+        lastName: 'Admin',
+        roleId: adminRole.id,
+      },
+    ]);
     await new Promise((resolve) => setTimeout(resolve, 500)); // https://github.com/nestjs/typeorm/issues/646
     this.logger.debug('Admin user created.');
   }
@@ -65,7 +64,7 @@ export class Seeder {
     }
 
     const createdRoles = await this.rolesService.create([
-      { id: '1', name: 'Administrator', isSystemAdmin: true } as NewRoleInput,
+      { id: '1', name: 'Administrator', isSystemAdmin: true } as CreateRoleRequestDto,
     ]);
     this.logger.debug('Admin role created.');
 
