@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { ConfigurationModule } from './configuration/configuration.module';
 import { ConfigurationService } from './configuration/configuration.service';
 import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
@@ -8,6 +7,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { setupSwagger } from './setup-swagger';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
+import { Logger } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter(), { cors: true });
   app.set('trust proxy', 1);
@@ -31,8 +31,8 @@ async function bootstrap() {
     app.enableShutdownHooks();
   }
   await app.listen(configService.appConfig.port);
-  console.info(`server running on ${await app.getUrl()}`);
-
+  const logger = new Logger('___DevLog___');
+  logger.log(`Server running on ${await app.getUrl()}`);
   return app;
 }
 bootstrap();
