@@ -33,10 +33,10 @@ export function Auth({
 export const IS_PUBLIC_KEY = 'isPublic';
 export function Public({
   summary,
-  serializeOptions,
+  serializeOptions = {},
 }: {
   summary: string;
-  serializeOptions: ClassTransformOptions;
+  serializeOptions?: ClassTransformOptions;
 }): MethodDecorator {
   SetMetadata(IS_PUBLIC_KEY, true);
   return applyDecorators(

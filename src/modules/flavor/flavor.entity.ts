@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Coffee } from './coffee.entity';
+import { Coffee } from '../coffees/coffee.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { faker } from '@faker-js/faker';
 

@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Coffee } from './entities/coffee.entity';
+import { Coffee } from './coffee.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
-import { CreateCoffeeRequestDto } from './dto/create.coffee.request.dto';
-import { Flavor } from './entities/flavor.entity';
-import { UpdateCoffeeRequestDto } from './dto/update.coffee.request.dto';
+import { CreateCoffeeRequestDto } from './dto/request/create.coffee.request.dto';
+import { Flavor } from '../flavor/flavor.entity';
+import { UpdateCoffeeRequestDto } from './dto/request/update.coffee.request.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination.query.dto';
-import { Event } from '../events/entities/event.entity';
+import { Event } from '../events/event.entity';
 
 @Injectable()
 export class CoffeesService {

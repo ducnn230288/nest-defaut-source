@@ -1,20 +1,22 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, ValidationPipe } from '@nestjs/common';
+import { Body, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { CoffeesService } from './coffees.service';
-import { CreateCoffeeRequestDto } from './dto/create.coffee.request.dto';
+import { CreateCoffeeRequestDto } from './dto/request/create.coffee.request.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination.query.dto';
-import { UpdateCoffeeRequestDto } from './dto/update.coffee.request.dto';
-import { ApiForbiddenResponse, ApiTags } from '@nestjs/swagger';
-import { ListCoffeeResponsesDto } from './dto/list.coffee.responses.dto';
-import { CoffeeResponsesDto } from './dto/coffee.responses.dto';
+import { UpdateCoffeeRequestDto } from './dto/request/update.coffee.request.dto';
+import { ListCoffeeResponseDto } from './dto/response/list.coffee.response.dto';
+import { CoffeeResponseDto } from './dto/response/coffee.response.dto';
+import { Headers, Public } from '../../decorators';
+import { SerializerBody } from '../../common/pipe/serializer-body.pipe';
 
-@ApiTags('coffees')
-@Controller('coffees')
+@Headers('coffees')
 export class CoffeesController {
   constructor(private readonly coffeesService: CoffeesService) {}
 
-  @ApiForbiddenResponse({ status: 403, description: 'Forbidden.' })
+  @Public({
+    summary: 'Get List Coffees',
+  })
   @Get()
-  async findAll(@Query() paginationQuery: PaginationQueryDto): Promise<ListCoffeeResponsesDto> {
+  async findAll(@Query() paginationQuery: PaginationQueryDto): Promise<ListCoffeeResponseDto> {
     return {
       message: 'Get List success',
       count: 0,
@@ -22,35 +24,47 @@ export class CoffeesController {
     };
   }
 
+  @Public({
+    summary: 'Get Detail Coffee',
+  })
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<CoffeeResponsesDto> {
+  async findOne(@Param('id') id: string): Promise<CoffeeResponseDto> {
     return {
       message: 'Update Success',
       data: await this.coffeesService.findOne(id),
     };
   }
 
+  @Public({
+    summary: 'Create Coffee',
+  })
   @Post()
-  async create(@Body() createCoffeeDto: CreateCoffeeRequestDto): Promise<CoffeeResponsesDto> {
+  async create(@Body(new SerializerBody()) createCoffeeDto: CreateCoffeeRequestDto): Promise<CoffeeResponseDto> {
     return {
       message: 'create Success',
       data: await this.coffeesService.create(createCoffeeDto),
     };
   }
 
+  @Public({
+    summary: 'Update Coffee',
+  })
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body(ValidationPipe) updateCoffeeDto: UpdateCoffeeRequestDto,
-  ): Promise<CoffeeResponsesDto> {
+    @Body(new SerializerBody()) updateCoffeeDto: UpdateCoffeeRequestDto,
+  ): Promise<CoffeeResponseDto> {
     return {
       message: 'Update Success',
       data: await this.coffeesService.update(id, updateCoffeeDto),
     };
   }
 
+  @Public({
+    summary: 'Delete Coffee',
+  })
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<CoffeeResponsesDto> {
+  async remove(@Param('id') id: string): Promise<CoffeeResponseDto> {
     return {
       message: 'Delete Success',
       data: await this.coffeesService.remove(id),
