@@ -17,8 +17,8 @@ export class Seeder {
     private readonly rolesService: RolesService,
     private readonly usersService: UserService,
   ) {}
-  public async run(args: CommandLineArgsOptions) {
-    // if (args.prod) {
+  public async run() {
+    // if (args.prod) { args: CommandLineArgsOptions
     //   return await this.seedProd();
     // }
     return;
