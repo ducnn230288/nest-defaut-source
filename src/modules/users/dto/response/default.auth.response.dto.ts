@@ -12,4 +12,4 @@ export class DefaultAuthResponseDto extends PartialType(DefaultResponsesDto) {
   readonly expiresIn: number;
 }
 
-class DefaultAuthResponsesDataDto extends PartialType(OmitType(User, ['password'] as const)) {}
+class DefaultAuthResponsesDataDto extends PartialType(OmitType(User, ['password', 'roleId', 'role'] as const)) {}

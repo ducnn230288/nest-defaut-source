@@ -6,4 +6,6 @@ export class RegisterAuthResponseDto extends PartialType(DefaultResponsesDto) {
   readonly data: RegisterAuthResponsesDataDto;
 }
 
-class RegisterAuthResponsesDataDto extends PartialType(OmitType(User, ['password', 'username', 'email'] as const)) {}
+class RegisterAuthResponsesDataDto extends PartialType(
+  OmitType(User, ['password', 'username', 'email', 'roleId'] as const),
+) {}

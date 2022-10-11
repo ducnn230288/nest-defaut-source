@@ -25,12 +25,12 @@ export class UserController {
     @Body(new SerializerBody([GROUP_USER]))
     loginAuthDto: LoginUserRequestDto,
   ): Promise<DefaultAuthResponseDto> {
-    const user = await this.authService.login(loginAuthDto);
+    const data = await this.authService.login(loginAuthDto);
     return {
-      accessToken: this.authService.getTokenForUser(user),
+      accessToken: this.authService.getTokenForUser(data),
       expiresIn: parseInt(process.env.JWT_EXPIRATION_TIME || '60'),
       message: i18n.t('common.Success'),
-      data: user,
+      data,
     };
   }
 
@@ -43,10 +43,9 @@ export class UserController {
     @I18n() i18n: I18nContext,
     @Body(new SerializerBody([GROUP_USER])) createUserDto: RegisterUserRequestDto,
   ): Promise<RegisterAuthResponseDto> {
-    const user = await this.authService.register(createUserDto);
     return {
       message: i18n.t('common.Success'),
-      data: user,
+      data: await this.authService.register(createUserDto),
     };
   }
 
