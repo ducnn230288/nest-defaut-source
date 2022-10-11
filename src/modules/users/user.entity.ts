@@ -1,13 +1,12 @@
 import { BeforeInsert, Column, Entity, ManyToOne } from 'typeorm';
 import { Exclude, Expose, Type } from 'class-transformer';
-import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
 import { Role } from './roles/role.entity';
 import { Base } from '../../base/base.entity';
 import { IsEmail, Length } from 'class-validator';
 import { Example } from '../../constants';
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
 
 export const GROUP_USER = 'group_user_details';
 export const GROUP_ALL_USERS = 'group_all_users';
@@ -51,7 +50,8 @@ export class User extends Base {
   @Column({ nullable: true })
   roleId?: string;
 
-  @ManyToOne(() => Role, (role) => role.users)
+  @ManyToOne(() => Role, (role) => role.users) // , { eager: true }
   @Type(() => Role)
-  role?: Promise<Role>;
+  @Expose({ groups: [GROUP_USER] })
+  role?: Role;
 }

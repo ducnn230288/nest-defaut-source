@@ -33,7 +33,20 @@ export class UserService extends BaseService<User> {
   async login(loginAuthDto: LoginUserRequestDto) {
     const user = await this.repo.findOne({
       where: { username: loginAuthDto.username },
+      // relations: ['role', 'role.permissions'],
+      // select: {
+      //   id: true,
+      //   createdAt: true,
+      //   role: {
+      //     id: true,
+      //     name: true,
+      //     permissions: {
+      //       id: true,
+      //     },
+      //   },
+      // },
     });
+    // console.log(user.role);
 
     if (!user) {
       throw new UnauthorizedException(`User ${loginAuthDto.username} not found!`);
@@ -59,20 +72,20 @@ export class UserService extends BaseService<User> {
     }
     // let adminRole = await this.repoRole.findOne({ where: { isSystemAdmin: true } });
     // if (!adminRole) {
-    // const adminRole = this.repoRole.create({ name: 'User', isSystemAdmin: false });
-    // await this.repoRole.save(adminRole);
-    // const adminPermission = this.repoPermission.create({
-    //   resourceName: 'User',
-    //   creatorOnly: true,
-    //   canRead: true,
-    //   canCreate: true,
-    //   canUpdate: true,
-    //   canDelete: true,
-    //   roleId: adminRole.id,
-    // });
-    // await this.repoPermission.save(adminPermission);
+    //   const adminRole = this.repoRole.create({ name: 'User', isSystemAdmin: false });
+    //   await this.repoRole.save(adminRole);
+    //   const adminPermission = this.repoPermission.create({
+    //     resourceName: 'User',
+    //     creatorOnly: true,
+    //     canRead: true,
+    //     canCreate: true,
+    //     canUpdate: true,
+    //     canDelete: true,
+    //     roleId: adminRole.id,
+    //   });
+    //   await this.repoPermission.save(adminPermission);
+    //   // createUserDto.roleId = adminPermission.id;
     // }
-    // , roleId: adminRole.id
     const user = this.repo.create({ ...createUserDto });
     return await this.repo.save(user);
   }

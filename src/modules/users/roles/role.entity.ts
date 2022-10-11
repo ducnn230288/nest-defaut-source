@@ -19,8 +19,8 @@ export class Role extends Base {
   isSystemAdmin: boolean;
 
   @OneToMany(() => User, (user) => user.role)
-  users: Promise<User[]>;
+  users: User[];
 
   @OneToMany(() => Permission, (permission) => permission.role)
-  permissions: Promise<Permission[]>;
+  permissions: Permission[];
 }

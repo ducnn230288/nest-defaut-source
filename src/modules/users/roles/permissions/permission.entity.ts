@@ -38,7 +38,7 @@ export class Permission extends Base {
   public roleId!: string;
 
   @ManyToOne(() => Role, (role) => role.permissions)
-  public role?: Promise<Role>;
+  public role?: Role;
 }
 
 // Normal non admin user:
