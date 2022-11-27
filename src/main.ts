@@ -1,38 +1,37 @@
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ConfigurationModule } from './configuration/configuration.module';
-import { ConfigurationService } from './configuration/configuration.service';
 import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+
+import { AppModule } from './app.module';
 import { setupSwagger } from './setup-swagger';
-import { ResponseInterceptor } from './interceptors/response.interceptor';
-import { Logger } from '@nestjs/common';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter(), { cors: true });
   app.set('trust proxy', 1);
-  app.use(helmet());
+  app.use(helmet({ crossOriginResourcePolicy: false }));
   app.setGlobalPrefix('/api');
   app.use(
     rateLimit({
-      windowMs: 15 * 60 * 1000, // 15 minutes
+      windowMs: 15 * 60 * 1000, // 115 minutes
       max: 100, // limit each IP to 100 requests per windowMs
     }),
   );
   app.enableVersioning();
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  const configService = app.select(ConfigurationModule).get(ConfigurationService);
-
-  if (configService.documentationEnabled) {
-    setupSwagger(app);
-  }
-  if (!configService.isDevelopment) {
+  if (process.env.NODE_ENV && process.env.NODE_ENV !== 'development') {
     app.enableShutdownHooks();
   }
-  await app.listen(configService.appConfig.port);
+  if (process.env.ENABLE_DOCUMENTATION) {
+    setupSwagger(app);
+  }
+  await app.listen(process.env.PORT || 3000);
   const logger = new Logger('___DevLog___');
   logger.log(`Server running on ${await app.getUrl()}`);
+
   return app;
 }
 bootstrap();

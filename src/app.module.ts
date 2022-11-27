@@ -1,40 +1,59 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CoffeesModule } from './modules/coffees/coffees.module';
-import { CoffeeRatingModule } from './modules/coffee-rating/coffee-rating.module';
 import { ConfigModule } from '@nestjs/config';
-import { UserModule } from './modules/users/user.module';
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
-import * as path from 'path';
-import { ConfigurationService } from './configuration/configuration.service';
-import { ConfigurationModule } from './configuration/configuration.module';
-import { CaslModule } from './casl/casl.module';
-import { RolesModule } from './modules/users/roles/roles.module';
+import { join } from 'path';
+
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { UserRoleModule } from './modules/user/role/role.module';
+import { CategoryModule } from './modules/category/category.module';
+import { CategoryTypeModule } from './modules/category/type/type.module';
+import { PageModule } from './modules/page/page.module';
 
 @Module({
   imports: [
+    // ServeStaticModule.forRoot( import { ServeStaticModule } from '@nestjs/serve-static';
+    //   (() => {
+    //     const publicDir = resolve('./uploads/');
+    //     const servePath = '/files';
+    //     return {
+    //       rootPath: publicDir,
+    //       serveRoot: servePath,
+    //       exclude: ['/api*'],
+    //     };
+    //   })(),
+    // ),
+    TypeOrmModule.forRootAsync({
+      useFactory: () => ({
+        type: 'postgres',
+        host: process.env.DATABASE_HOST,
+        port: +process.env.DATABASE_PORT,
+        username: process.env.DATABASE_USER,
+        password: process.env.DATABASE_PASSWORD,
+        database: process.env.DATABASE_NAME,
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
     }),
-    CoffeesModule,
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
-        path: path.join(__dirname, '../translations/'),
-        watch: true,
+        path: join(__dirname, './translations/'),
+        watch: process.env.NODE_ENV !== 'production',
       },
       resolvers: [{ use: QueryResolver, options: ['lang'] }, AcceptLanguageResolver],
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigurationModule],
-      useFactory: (configService: ConfigurationService) => configService.postgresConfig,
-      inject: [ConfigurationService],
-    }),
+    AuthModule,
+    CategoryTypeModule,
+    CategoryModule,
+    PageModule,
+    UserRoleModule,
     UserModule,
-    RolesModule,
-    CaslModule,
-    CoffeeRatingModule,
   ],
   controllers: [],
 })
