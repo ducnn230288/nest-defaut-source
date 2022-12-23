@@ -5,45 +5,26 @@ import { S3 } from 'aws-sdk';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 
-import { BaseService } from '../common';
+import { BaseService } from '@common';
+import { MailService } from '@mail/mail.service';
+import { User } from '@modules/user/user.entity';
+import { Data } from '@modules/data/data.entity';
+import { Page } from '@modules/page/page.entity';
 import { LoginAuthRequestDto, RegisterAuthRequestDto } from './dto';
-import { User } from '../modules/user/user.entity';
-import { MailService } from '../mail/mail.service';
+
+export const P_AUTH_DELETE_IMAGE_TEMP = '11cc566b-b109-49f8-983f-84ff08f9849e';
 
 @Injectable()
 export class AuthService extends BaseService {
   constructor(
     @InjectRepository(User) public repo: Repository<User>,
     private readonly jwtService: JwtService,
+    @InjectRepository(Page) public repoPage: Repository<Page>,
+    @InjectRepository(Data) public repoData: Repository<Data>,
     private mailService: MailService,
   ) {
     super(repo);
   }
-  // private readonly connection: Connection,
-  // async recommendCoffee(coffee: Coffee) {
-  //   const queryRunner = this.connection.createQueryRunner();
-  //
-  //   await queryRunner.connect();
-  //   await queryRunner.startTransaction();
-  //
-  //   try {
-  //     coffee.recommendations++;
-  //     const recommendEvent = new Event();
-  //     recommendEvent.name = 'recommend_coffee';
-  //     recommendEvent.type = 'coffee';
-  //     recommendEvent.payload = { coffeeId: coffee.id };
-  //
-  //     await queryRunner.manager.save(coffee);
-  //     await queryRunner.manager.save(recommendEvent);
-  //
-  //     await queryRunner.commitTransaction();
-  //   } catch (err) {
-  //     await queryRunner.rollbackTransaction();
-  //   } finally {
-  //     await queryRunner.release();
-  //   }
-  // }
-
   async updateRefreshToken(userId: string, refreshToken: string) {
     await this.repo.update(userId, {
       refreshToken: await bcrypt.hash(refreshToken, 10),
@@ -173,27 +154,49 @@ export class AuthService extends BaseService {
     });
   }
   async checkDeleteFile(fileName: string) {
-    const data = await this.repo.count({
+    let data = await this.repo.count({
       where: { avatar: Like('%' + fileName) },
-      withDeleted: false,
     });
     if (!data) {
-      const s3 = new S3({
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      data = await this.repoData.count({
+        where: { image: Like('%' + fileName) },
       });
-      s3.deleteObject(
-        {
-          Bucket: process.env.AWS_ACCESS_BUCKET_NAME,
-          Key: fileName,
-        },
-        (err, data) => {
-          if (err) {
-            console.log(err);
-          }
-          console.log(data);
-        },
-      );
     }
+    // if (!data) {
+    //   const dataTemp = await this.repoPage.find({});
+    //   dataTemp.forEach((item: Page) => {
+    //     item.content.forEach((subItem: any) => {
+    //       if (!data && subItem.image && subItem.image.indexOf(fileName) === (process.env.DOMAIN + 'files/').length) {
+    //         data = 1;
+    //       }
+    //       if (!data && subItem?.content?.blocks?.length > 0) {
+    //         subItem?.content?.blocks.forEach((block: any) => {
+    //           if (!data && block?.data?.file?.url.indexOf(fileName) === (process.env.DOMAIN + 'files/').length) {
+    //             data = 1;
+    //           }
+    //         });
+    //       }
+    //     });
+    //   });
+    // }
+    return data;
+    // if (!data) {
+    //   const s3 = new S3({
+    //     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    //   });
+    //   s3.deleteObject(
+    //     {
+    //       Bucket: process.env.AWS_ACCESS_BUCKET_NAME,
+    //       Key: fileName,
+    //     },
+    //     (err, data) => {
+    //       if (err) {
+    //         console.log(err);
+    //       }
+    //       console.log(data);
+    //     },
+    //   );
+    // }
   }
 }

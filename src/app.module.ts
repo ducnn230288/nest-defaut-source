@@ -4,26 +4,30 @@ import { ConfigModule } from '@nestjs/config';
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { join } from 'path';
 
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './modules/user/user.module';
-import { UserRoleModule } from './modules/user/role/role.module';
-import { CategoryModule } from './modules/category/category.module';
-import { CategoryTypeModule } from './modules/category/type/type.module';
-import { PageModule } from './modules/page/page.module';
-
+import { AuthModule } from '@auth/auth.module';
+import { CodeTypeModule } from '@modules/code/type/type.module';
+import { CodeModule } from '@modules/code/code.module';
+import { UserRoleModule } from '@modules/user/role/role.module';
+import { UserModule } from '@modules/user/user.module';
+import { DataTypeModule } from '@modules/data/type/type.module';
+import { DataModule } from '@modules/data/data.module';
+import { PageModule } from '@modules/page/page.module';
+import { PageTranslationModule } from '@modules/page/translation/translation.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { resolve } from 'path';
 @Module({
   imports: [
-    // ServeStaticModule.forRoot( import { ServeStaticModule } from '@nestjs/serve-static';
-    //   (() => {
-    //     const publicDir = resolve('./uploads/');
-    //     const servePath = '/files';
-    //     return {
-    //       rootPath: publicDir,
-    //       serveRoot: servePath,
-    //       exclude: ['/api*'],
-    //     };
-    //   })(),
-    // ),
+    ServeStaticModule.forRoot(
+      (() => {
+        const publicDir = resolve('./uploads/');
+        const servePath = '/files';
+        return {
+          rootPath: publicDir,
+          serveRoot: servePath,
+          exclude: ['/api*'],
+        };
+      })(),
+    ),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
         type: 'postgres',
@@ -43,17 +47,20 @@ import { PageModule } from './modules/page/page.module';
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
-        path: join(__dirname, './translations/'),
+        path: join(__dirname, '/translations/'),
         watch: process.env.NODE_ENV !== 'production',
       },
-      resolvers: [{ use: QueryResolver, options: ['lang'] }, AcceptLanguageResolver],
+      resolvers: [{ use: QueryResolver, options: ['Accept-Language'] }, AcceptLanguageResolver],
     }),
     AuthModule,
-    CategoryTypeModule,
-    CategoryModule,
-    PageModule,
+    CodeTypeModule,
+    CodeModule,
     UserRoleModule,
     UserModule,
+    DataTypeModule,
+    DataModule,
+    PageModule,
+    PageTranslationModule,
   ],
   controllers: [],
 })

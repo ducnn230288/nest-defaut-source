@@ -1,13 +1,11 @@
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { faker } from '@faker-js/faker';
-import { IsBoolean, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
 
-import { Base } from '../../common';
-
-export const GROUP_PAGE = 'group_page_details';
-export const GROUP_MIN_PAGE = 'group_min_page';
+import { Base, RelationGroup } from '@common';
+import { PageTranslation } from '@modules/page/translation/translation.entity';
 
 @Entity()
 @Exclude()
@@ -18,10 +16,19 @@ export class Page extends Base {
   @IsString()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Expose()
+  @ApiProperty({ example: faker.lorem.slug(), description: '' })
   @IsString()
+  @IsOptional()
   slug: string;
+
+  @Column({ nullable: true })
+  @Expose()
+  @ApiProperty({ example: 'style1', description: '' })
+  @IsString()
+  @IsOptional()
+  style: string;
 
   @Column({ default: false })
   @Expose()
@@ -29,12 +36,30 @@ export class Page extends Base {
   @IsBoolean()
   isHomePage: boolean;
 
-  @Column({
-    type: 'jsonb',
-    array: false,
-    default: [],
-    nullable: false,
-  })
-  @Expose({ groups: [GROUP_PAGE] })
-  readonly content?: Record<string, any>;
+  @Column({ nullable: true })
+  @Expose()
+  @ApiProperty({ example: faker.datatype.number({ min: 0 }), description: '' })
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  order?: number;
+
+  @Column({ nullable: true })
+  @Expose()
+  @ApiProperty({ example: null, description: '' })
+  @IsString()
+  @IsOptional()
+  parentId?: string;
+
+  @ManyToMany(() => Page)
+  @JoinTable()
+  @Expose()
+  @IsArray()
+  @IsOptional()
+  children?: Page[];
+
+  @OneToMany(() => PageTranslation, (data) => data.page, { eager: true })
+  @Expose({ groups: [RelationGroup] })
+  @IsArray()
+  translations?: PageTranslation[];
 }

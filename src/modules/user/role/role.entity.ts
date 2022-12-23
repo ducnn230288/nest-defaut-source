@@ -4,11 +4,8 @@ import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { faker } from '@faker-js/faker';
 
-import { Base } from '../../../common/';
+import { Base } from '@common';
 import { User } from '../user.entity';
-
-export const GROUP_USER_ROLE = 'group_user_role';
-export const GROUP_ALL_USER_ROLE = 'group_all_user_role';
 
 @Entity()
 // @Unique(['name'])
@@ -21,7 +18,7 @@ export class UserRole extends Base {
   name: string;
 
   @Column({ default: false })
-  @Expose({ groups: [GROUP_ALL_USER_ROLE] })
+  @Expose()
   @ApiProperty({ example: false, description: '' })
   @IsBoolean()
   isSystemAdmin: boolean;
@@ -32,7 +29,7 @@ export class UserRole extends Base {
     default: [],
     nullable: false,
   })
-  @Expose({ groups: [GROUP_ALL_USER_ROLE] })
+  @Expose()
   @ApiProperty({ example: [], description: '' })
   @IsOptional()
   readonly permissions?: Record<string, any>;

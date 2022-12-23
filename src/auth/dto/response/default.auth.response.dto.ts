@@ -1,7 +1,7 @@
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 
-import { DefaultResponsesDto, Example } from '../../../common';
-import { User } from '../../../modules/user/user.entity';
+import { DefaultResponsesDto, Example } from '@common';
+import { User } from '@modules/user/user.entity';
 
 export class DefaultAuthResponseDto extends PartialType(DefaultResponsesDto) {
   readonly data: DefaultAuthResponsesDataDto;

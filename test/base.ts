@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { AppDataSource } from '../src/data-source';
 import { faker } from '@faker-js/faker';
-import { Example } from '../src/common/constants';
-import { UserRoleService } from '../src/modules/user/role/role.service';
-import { AuthService } from '../src/auth/auth.service';
+
+import { AppModule } from '@src/app.module';
+import { AppDataSource } from '@src/data-source';
+import { Example } from '@common';
+import { UserRoleService } from '@modules/user/role/role.service';
+import { AuthService } from '@auth/auth.service';
 
 export const BaseTest = {
   userAdmin: {
@@ -46,6 +47,7 @@ export const BaseTest = {
   token: undefined,
   serviceRole: undefined,
   serviceAuth: undefined,
+  moduleFixture: undefined,
 
   initBeforeAll: async (type?: string, permissions: string[] = []) => {
     await new Promise((res) => setTimeout(res, 1));
@@ -55,6 +57,7 @@ export const BaseTest = {
     }).compile();
     BaseTest.serviceRole = moduleFixture.get<UserRoleService>(UserRoleService);
     BaseTest.serviceAuth = moduleFixture.get<AuthService>(AuthService);
+    BaseTest.moduleFixture = moduleFixture;
     BaseTest.app = moduleFixture.createNestApplication();
     await BaseTest.app.init();
     BaseTest.server = BaseTest.app.getHttpServer();

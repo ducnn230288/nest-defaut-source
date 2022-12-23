@@ -1,3 +1,8 @@
 {
-  "Success": "Thành công"
+  "Success": "Thành công",
+  "Get List success": "Lấy Danh sách thành công",
+  "Get Detail Success": "Lấy chi tiết thành công",
+  "Create Success": "Tạo thành công",
+  "Update Success": "Cập nhật thành công",
+  "Delete Success": "Xóa thành công"
 }

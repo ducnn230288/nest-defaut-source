@@ -1,6 +1,7 @@
 import { Body, Delete, Get, Param, Post, Put, Query, ValidationPipe } from '@nestjs/common';
+import { I18n, I18nContext } from 'nestjs-i18n';
 
-import { Auth, Headers, PaginationQueryDto, SerializerBody } from '../../../common';
+import { Auth, Headers, PaginationQueryDto, SerializerBody } from '@common';
 import {
   UserRoleResponseDto,
   ListUserRoleResponseDto,
@@ -8,6 +9,16 @@ import {
   UpdateUserRoleRequestDto,
   PermissionResponseDto,
 } from './dto';
+
+import { P_AUTH_DELETE_IMAGE_TEMP } from '@auth/auth.service';
+import {
+  P_CODE_TYPE_LISTED,
+  P_CODE_TYPE_DETAIL,
+  P_CODE_TYPE_CREATE,
+  P_CODE_TYPE_UPDATE,
+  P_CODE_TYPE_DELETE,
+} from '@modules/code/type/type.service';
+import { P_CODE_LISTED, P_CODE_DETAIL, P_CODE_CREATE, P_CODE_UPDATE, P_CODE_DELETE } from '@modules/code/code.service';
 import {
   UserRoleService,
   P_USER_ROLE_LISTED,
@@ -15,26 +26,17 @@ import {
   P_USER_ROLE_CREATE,
   P_USER_ROLE_UPDATE,
   P_USER_ROLE_DELETE,
-} from './role.service';
-
-import { GROUP_ALL_USER_ROLE, GROUP_USER_ROLE } from './role.entity';
+} from '@modules/user/role/role.service';
+import { P_USER_CREATE, P_USER_DELETE, P_USER_DETAIL, P_USER_LISTED, P_USER_UPDATE } from '@modules/user/user.service';
 
 import {
-  P_CATEGORY_TYPE_LISTED,
-  P_CATEGORY_TYPE_DETAIL,
-  P_CATEGORY_TYPE_CREATE,
-  P_CATEGORY_TYPE_UPDATE,
-  P_CATEGORY_TYPE_DELETE,
-} from '../../category/type/type.service';
-import {
-  P_CATEGORY_LISTED,
-  P_CATEGORY_DETAIL,
-  P_CATEGORY_CREATE,
-  P_CATEGORY_UPDATE,
-  P_CATEGORY_DELETE,
-} from '../../category/category.service';
-import { P_USER_CREATE, P_USER_DELETE, P_USER_DETAIL, P_USER_LISTED, P_USER_UPDATE } from '../user.service';
-import { P_PAGE_LISTED, P_PAGE_DETAIL, P_PAGE_CREATE, P_PAGE_UPDATE, P_PAGE_DELETE } from '../../page/page.service';
+  P_DATA_TYPE_LISTED,
+  P_DATA_TYPE_CREATE,
+  P_DATA_TYPE_UPDATE,
+  P_DATA_TYPE_DELETE,
+} from '@modules/data/type/type.service';
+import { P_DATA_LISTED, P_DATA_CREATE, P_DATA_UPDATE, P_DATA_DELETE } from '@modules/data/data.service';
+import { P_PAGE_LISTED, P_PAGE_CREATE, P_PAGE_UPDATE, P_PAGE_DELETE } from '@modules/page/page.service';
 
 @Headers('user-role')
 export class UserRoleController {
@@ -42,16 +44,16 @@ export class UserRoleController {
 
   @Auth({
     summary: 'Get List data',
-    serializeOptions: { groups: [GROUP_USER_ROLE] },
     permission: P_USER_ROLE_LISTED,
   })
   @Get()
   async findAll(
+    @I18n() i18n: I18nContext,
     @Query(new ValidationPipe({ transform: true })) paginationQuery: PaginationQueryDto,
   ): Promise<ListUserRoleResponseDto> {
     const [result, total] = await this.service.findAll(paginationQuery);
     return {
-      message: 'Get List success',
+      message: i18n.t('common.Get List success'),
       count: total,
       data: result,
     };
@@ -59,75 +61,75 @@ export class UserRoleController {
 
   @Auth({
     summary: 'Create data',
-    serializeOptions: { groups: [GROUP_ALL_USER_ROLE] },
     permission: P_USER_ROLE_CREATE,
   })
   @Post()
   async create(
-    @Body(new SerializerBody([GROUP_ALL_USER_ROLE])) body: CreateUserRoleRequestDto,
+    @I18n() i18n: I18nContext,
+    @Body(new SerializerBody()) body: CreateUserRoleRequestDto,
   ): Promise<UserRoleResponseDto> {
     return {
-      message: 'create Success',
+      message: i18n.t('common.Create Success'),
       data: await this.service.create(body),
     };
   }
 
   @Auth({
     summary: 'Update data',
-    serializeOptions: { groups: [GROUP_ALL_USER_ROLE] },
     permission: P_USER_ROLE_UPDATE,
   })
   @Put(':id')
   async update(
+    @I18n() i18n: I18nContext,
     @Param('id') id: string,
-    @Body(new SerializerBody([GROUP_ALL_USER_ROLE])) body: UpdateUserRoleRequestDto, //
+    @Body(new SerializerBody()) body: UpdateUserRoleRequestDto, //
   ): Promise<UserRoleResponseDto> {
     return {
-      message: 'Update Success',
+      message: i18n.t('common.Update Success'),
       data: await this.service.update(id, body),
     };
   }
 
   @Auth({
     summary: 'Delete data',
-    serializeOptions: { groups: [GROUP_USER_ROLE] },
     permission: P_USER_ROLE_DELETE,
   })
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<UserRoleResponseDto> {
+  async remove(@I18n() i18n: I18nContext, @Param('id') id: string): Promise<UserRoleResponseDto> {
     return {
-      message: 'Delete Success',
+      message: i18n.t('common.Delete Success'),
       data: await this.service.remove(id),
     };
   }
 
   @Auth({
     summary: 'Get list permission',
-    serializeOptions: { groups: [GROUP_ALL_USER_ROLE] },
     permission: P_USER_ROLE_LISTED,
   })
   @Get('/permission')
-  async findAllPermission(): Promise<PermissionResponseDto> {
+  async findAllPermission(@I18n() i18n: I18nContext): Promise<PermissionResponseDto> {
     return {
-      message: 'Update Success',
+      message: i18n.t('common.Get Detail Success'),
       data: [
-        P_CATEGORY_TYPE_LISTED,
-        P_CATEGORY_TYPE_DETAIL,
-        P_CATEGORY_TYPE_CREATE,
-        P_CATEGORY_TYPE_UPDATE,
-        P_CATEGORY_TYPE_DELETE,
+        P_AUTH_DELETE_IMAGE_TEMP,
 
-        P_CATEGORY_LISTED,
-        P_CATEGORY_DETAIL,
-        P_CATEGORY_CREATE,
-        P_CATEGORY_UPDATE,
-        P_CATEGORY_DELETE,
+        P_CODE_TYPE_LISTED,
+        P_CODE_TYPE_DETAIL,
+        P_CODE_TYPE_CREATE,
+        P_CODE_TYPE_UPDATE,
+        P_CODE_TYPE_DELETE,
 
-        P_PAGE_LISTED,
-        P_PAGE_DETAIL,
-        P_PAGE_CREATE,
-        P_PAGE_UPDATE,
-        P_PAGE_DELETE,
+        P_CODE_LISTED,
+        P_CODE_DETAIL,
+        P_CODE_CREATE,
+        P_CODE_UPDATE,
+        P_CODE_DELETE,
+
+        P_USER_ROLE_LISTED,
+        P_USER_ROLE_DETAIL,
+        P_USER_ROLE_CREATE,
+        P_USER_ROLE_UPDATE,
+        P_USER_ROLE_DELETE,
 
         P_USER_LISTED,
         P_USER_DETAIL,
@@ -135,24 +137,32 @@ export class UserRoleController {
         P_USER_UPDATE,
         P_USER_DELETE,
 
-        P_USER_ROLE_LISTED,
-        P_USER_ROLE_DETAIL,
-        P_USER_ROLE_CREATE,
-        P_USER_ROLE_UPDATE,
-        P_USER_ROLE_DELETE,
+        P_DATA_TYPE_LISTED,
+        P_DATA_TYPE_CREATE,
+        P_DATA_TYPE_UPDATE,
+        P_DATA_TYPE_DELETE,
+
+        P_DATA_LISTED,
+        P_DATA_CREATE,
+        P_DATA_UPDATE,
+        P_DATA_DELETE,
+
+        P_PAGE_LISTED,
+        P_PAGE_CREATE,
+        P_PAGE_UPDATE,
+        P_PAGE_DELETE,
       ],
     };
   }
 
   @Auth({
     summary: 'Get Detail data',
-    serializeOptions: { groups: [GROUP_ALL_USER_ROLE] },
     permission: P_USER_ROLE_DETAIL,
   })
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<UserRoleResponseDto> {
+  async findOne(@I18n() i18n: I18nContext, @Param('id') id: string): Promise<UserRoleResponseDto> {
     return {
-      message: 'Update Success',
+      message: i18n.t('common.Get Detail Success'),
       data: await this.service.findOne(id),
     };
   }

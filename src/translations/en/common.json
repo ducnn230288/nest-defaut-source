@@ -1,3 +1,8 @@
 {
-  "Success": "Success"
+  "Success": "Success",
+  "Get List success": "Get List success",
+  "Get Detail Success": "Get Detail Success",
+  "Create Success": "Create Success",
+  "Update Success": "Update Success",
+  "Delete Success": "Delete Success"
 }

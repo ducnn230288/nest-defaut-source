@@ -16,6 +16,26 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@src/*": [
+        "src/*"
+      ],
+      "@auth/*": [
+        "src/auth/*"
+      ],
+      "@common": [
+        "src/common"
+      ],
+      "@database/*": [
+        "src/database/*"
+      ],
+      "@modules/*": [
+        "src/modules/*"
+      ],
+      "@mail/*": [
+        "src/mail/*"
+      ]
+    }
   }
 }

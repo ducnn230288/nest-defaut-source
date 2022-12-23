@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { BaseService } from '../../../common';
+import { BaseService } from '@common';
 import { UserRole } from './role.entity';
 
 export const P_USER_ROLE_LISTED = '8f559613-ef55-4ef0-8068-8c37e84b75de';

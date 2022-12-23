@@ -3,12 +3,16 @@ import 'reflect-metadata';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SeederOptions } from 'typeorm-extension';
 
-import { MainSeeder } from './database/main.seeder';
-import { CategoryType } from './modules/category/type/type.entity';
-import { Category } from './modules/category/category.entity';
-import { Page } from './modules/page/page.entity';
-import { User } from './modules/user/user.entity';
-import { UserRole } from './modules/user/role/role.entity';
+import { MainSeeder } from '@database/main.seeder';
+import { CodeType } from '@modules/code/type/type.entity';
+import { Code } from '@modules/code/code.entity';
+import { User } from '@modules/user/user.entity';
+import { UserRole } from '@modules/user/role/role.entity';
+import { Data } from '@modules/data/data.entity';
+import { DataTranslation } from '@modules/data/translation/translation.entity';
+import { DataType } from '@modules/data/type/type.entity';
+import { Page } from '@modules/page/page.entity';
+import { PageTranslation } from '@modules/page/translation/translation.entity';
 
 const options: DataSourceOptions & SeederOptions = {
   type: 'postgres',
@@ -17,7 +21,7 @@ const options: DataSourceOptions & SeederOptions = {
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  entities: [CategoryType, Category, Page, User, UserRole],
+  entities: [CodeType, Code, User, UserRole, Page, PageTranslation, Data, DataTranslation, DataType],
   migrations: [`${__dirname}/**/database/migrations/*.{ts,js}`],
   seeds: [MainSeeder],
 };

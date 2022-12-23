@@ -47,6 +47,14 @@ export abstract class BaseService {
     return await this.findOne(id);
   }
 
+  async removeHard(id: string) {
+    const data = await this.findOne(id);
+    const res = await this.repo.delete(id);
+    if (!res.affected) {
+      throw new NotFoundException(id);
+    }
+    return data;
+  }
   requestByPagination(paginationQuery: PaginationQueryDto, listKey: string[] = []) {
     const { perPage, page, fullTextSearch } = paginationQuery;
     let { where, filter, sorts } = paginationQuery;
@@ -88,6 +96,7 @@ export abstract class BaseService {
       where: where.length ? where : {},
       skip: (page !== undefined ? page - 1 : 0) * (perPage || 0),
       withDeleted: false,
+      cache: 60000,
     };
   }
 }

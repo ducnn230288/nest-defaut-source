@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+// import rateLimit from 'express-rate-limit';
 
 import { AppModule } from './app.module';
 import { setupSwagger } from './setup-swagger';
@@ -13,12 +13,12 @@ async function bootstrap() {
   app.set('trust proxy', 1);
   app.use(helmet({ crossOriginResourcePolicy: false }));
   app.setGlobalPrefix('/api');
-  app.use(
-    rateLimit({
-      windowMs: 15 * 60 * 1000, // 115 minutes
-      max: 100, // limit each IP to 100 requests per windowMs
-    }),
-  );
+  // app.use(
+  //   rateLimit({
+  //     windowMs: 15 * 60 * 1000, // 115 minutes
+  //     max: 100, // limit each IP to 100 requests per windowMs
+  //   }),
+  // );
   app.enableVersioning();
   app.useGlobalInterceptors(new ResponseInterceptor());
 

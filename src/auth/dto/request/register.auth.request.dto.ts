@@ -1,8 +1,8 @@
 import { MinLength } from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 
-import { Example } from '../../../common';
-import { User } from '../../../modules/user/user.entity';
+import { Example } from '@common';
+import { User } from '@modules/user/user.entity';
 
 export class RegisterAuthRequestDto extends PickType(User, [
   'name',

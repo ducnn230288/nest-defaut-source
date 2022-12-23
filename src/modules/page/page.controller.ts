@@ -1,40 +1,68 @@
 import { Body, Delete, Get, Param, Post, Put, Query, ValidationPipe } from '@nestjs/common';
+import { I18n, I18nContext } from 'nestjs-i18n';
 
-import { Auth, Headers, PaginationQueryDto, SerializerBody } from '../../common';
-import { ListPageResponseDto, PageResponseDto, CreatePageRequestDto, UpdatePageRequestDto } from './dto';
-import { PageService, P_PAGE_LISTED, P_PAGE_DETAIL, P_PAGE_CREATE, P_PAGE_UPDATE, P_PAGE_DELETE } from './page.service';
-import { GROUP_MIN_PAGE, GROUP_PAGE } from './page.entity';
+import { Auth, Headers, SerializerBody, MaxGroup, Public, RelationGroup } from '@common';
+import {
+  ListPageResponseDto,
+  PageResponseDto,
+  CreatePageRequestDto,
+  UpdatePageRequestDto,
+  AllPageRequestDto,
+} from './dto';
+import { PageService, P_PAGE_CREATE, P_PAGE_UPDATE, P_PAGE_DELETE } from './page.service';
 
 @Headers('page')
 export class PageController {
   constructor(private readonly service: PageService) {}
 
-  @Auth({
+  @Public({
     summary: 'Get List data',
-    permission: P_PAGE_LISTED,
-    serializeOptions: { groups: [GROUP_MIN_PAGE] },
+    serializeOptions: { groups: [RelationGroup] },
   })
   @Get()
-  async findAll(
-    @Query(new ValidationPipe({ transform: true })) paginationQuery: PaginationQueryDto,
-  ): Promise<ListPageResponseDto> {
-    const [result, total] = await this.service.findAll(paginationQuery);
+  async findAll(@I18n() i18n: I18nContext): Promise<ListPageResponseDto> {
+    const [result, total] = await this.service.findAllParent();
     return {
-      message: 'Get List success',
+      message: i18n.t('common.Get List success'),
       count: total,
       data: result,
     };
   }
 
-  @Auth({
+  @Public({
+    summary: 'Get Detail data is home',
+    serializeOptions: { groups: [MaxGroup, RelationGroup] },
+  })
+  @Get('/home')
+  async findHome(@I18n() i18n: I18nContext): Promise<PageResponseDto> {
+    return {
+      message: i18n.t('common.Get Detail Success'),
+      data: await this.service.findHome(),
+    };
+  }
+  @Public({
+    summary: 'Get Detail data by slug',
+    serializeOptions: { groups: [MaxGroup, RelationGroup] },
+  })
+  @Get('/slug')
+  async findOneBySlug(
+    @I18n() i18n: I18nContext,
+    @Query(new ValidationPipe({ transform: true })) query: { slug: string },
+  ): Promise<PageResponseDto> {
+    return {
+      message: i18n.t('common.Get Detail Success'),
+      data: await this.service.findOneBySlug(query.slug),
+    };
+  }
+
+  @Public({
     summary: 'Get Detail data',
-    permission: P_PAGE_DETAIL,
-    serializeOptions: { groups: [GROUP_PAGE] },
+    serializeOptions: { groups: [MaxGroup, RelationGroup] },
   })
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<PageResponseDto> {
+  async findOne(@I18n() i18n: I18nContext, @Param('id') id: string): Promise<PageResponseDto> {
     return {
-      message: 'Update Success',
+      message: i18n.t('common.Get Detail Success'),
       data: await this.service.findOne(id),
     };
   }
@@ -42,28 +70,48 @@ export class PageController {
   @Auth({
     summary: 'Create data',
     permission: P_PAGE_CREATE,
-    serializeOptions: { groups: [GROUP_PAGE] },
+    serializeOptions: { groups: [RelationGroup] },
   })
   @Post()
-  async create(@Body(new SerializerBody()) body: CreatePageRequestDto): Promise<PageResponseDto> {
+  async create(
+    @I18n() i18n: I18nContext,
+    @Body(new SerializerBody([RelationGroup])) body: CreatePageRequestDto,
+  ): Promise<PageResponseDto> {
     return {
-      message: 'create Success',
+      message: i18n.t('common.Create Success'),
       data: await this.service.create(body),
+    };
+  }
+
+  @Auth({
+    summary: 'Update all order data',
+    permission: P_PAGE_UPDATE,
+    serializeOptions: { groups: [RelationGroup] },
+  })
+  @Put('/all')
+  async updateAll(
+    @I18n() i18n: I18nContext,
+    @Body(new SerializerBody()) body: AllPageRequestDto,
+  ): Promise<PageResponseDto> {
+    return {
+      message: i18n.t('common.Update Success'),
+      data: await this.service.updateAll(body),
     };
   }
 
   @Auth({
     summary: 'Update data',
     permission: P_PAGE_UPDATE,
-    serializeOptions: { groups: [GROUP_PAGE] },
+    serializeOptions: { groups: [RelationGroup] },
   })
   @Put(':id')
   async update(
+    @I18n() i18n: I18nContext,
     @Param('id') id: string,
-    @Body(new SerializerBody()) body: UpdatePageRequestDto, //
+    @Body(new SerializerBody([RelationGroup])) body: UpdatePageRequestDto, //
   ): Promise<PageResponseDto> {
     return {
-      message: 'Update Success',
+      message: i18n.t('common.Update Success'),
       data: await this.service.update(id, body),
     };
   }
@@ -71,12 +119,12 @@ export class PageController {
   @Auth({
     summary: 'Delete data',
     permission: P_PAGE_DELETE,
-    serializeOptions: { groups: [GROUP_PAGE] },
+    serializeOptions: { groups: [RelationGroup] },
   })
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<PageResponseDto> {
+  async remove(@I18n() i18n: I18nContext, @Param('id') id: string): Promise<PageResponseDto> {
     return {
-      message: 'Delete Success',
+      message: i18n.t('common.Delete Success'),
       data: await this.service.remove(id),
     };
   }

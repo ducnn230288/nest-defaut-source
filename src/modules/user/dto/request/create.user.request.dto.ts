@@ -1,7 +1,7 @@
 import { MinLength } from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 
-import { Example } from '../../../../common';
+import { Example } from '@common';
 import { User } from '../../user.entity';
 
 export class CreateUserRequestDto extends PickType(User, [
@@ -19,5 +19,5 @@ export class CreateUserRequestDto extends PickType(User, [
 ] as const) {
   @MinLength(6)
   @ApiProperty({ example: Example.password, description: '' })
-  readonly retypedPassword: string;
+  retypedPassword: string;
 }

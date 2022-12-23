@@ -14,31 +14,29 @@ import {
 } from 'class-validator';
 import * as bcrypt from 'bcrypt';
 
-import { Base, Example } from '../../common';
+import { Base, Example, MaxGroup } from '@common';
 import { UserRole } from './role/role.entity';
-import { Category } from '../category/category.entity';
-
-export const GROUP_USER = 'group_user_details';
-export const GROUP_MIN_USER = 'group_min_user';
+import { Code } from '../code/code.entity';
 
 @Entity()
 // @Unique(['email', 'phoneNumber'])
 @Exclude()
 export class User extends Base {
   @Column()
-  @Expose({ groups: [GROUP_USER, GROUP_MIN_USER] })
+  @Expose()
   @ApiProperty({ example: faker.name.fullName(), description: '' })
   @IsString()
   readonly name: string;
 
   @Column({ nullable: true })
-  @Expose({ groups: [GROUP_USER, GROUP_MIN_USER] })
+  @Expose()
   @ApiProperty({ example: faker.image.imageUrl(), description: '' })
   @IsString()
   @IsOptional()
   avatar?: string;
 
   @Column()
+  @Expose({ groups: [MaxGroup] })
   @ApiProperty({ example: Example.password, description: '' })
   @MinLength(6)
   password?: string;
@@ -56,13 +54,13 @@ export class User extends Base {
   }
 
   @Column()
-  @Expose({ groups: [GROUP_USER, GROUP_MIN_USER] })
+  @Expose()
   @ApiProperty({ example: faker.internet.email().toLowerCase(), description: '' })
   @IsEmail()
   readonly email: string;
 
   @Column()
-  @Expose({ groups: [GROUP_USER, GROUP_MIN_USER] })
+  @Expose()
   @ApiProperty({ example: faker.phone.number('0#########'), description: '' })
   @IsString()
   @MinLength(10)
@@ -70,52 +68,53 @@ export class User extends Base {
   readonly phoneNumber: string;
 
   @Column()
-  @Expose({ groups: [GROUP_USER] })
+  @Expose({ groups: [MaxGroup] })
   @ApiProperty({ example: faker.date.birthdate(), description: '' })
   @IsDateString()
-  readonly dob: Date;
+  dob: Date;
 
   @Column({ nullable: true })
-  @Expose({ groups: [GROUP_USER] })
+  @Expose({ groups: [MaxGroup] })
   @ApiProperty({ example: faker.lorem.paragraph(), description: '' })
   @IsString()
   @IsOptional()
-  readonly description: string;
+  description: string;
 
   @Column({ nullable: true })
-  @Expose({ groups: [GROUP_USER] })
+  @Expose({ groups: [MaxGroup] })
   @IsString()
   @IsOptional()
   roleId?: string;
 
   @ManyToOne(() => UserRole, (role) => role.users, { eager: true }) //
   @Type(() => UserRole)
-  @Expose({ groups: [GROUP_USER] })
+  @Expose({ groups: [MaxGroup] })
   readonly role?: UserRole;
 
   @Column({ nullable: true })
-  @Expose({ groups: [GROUP_USER] })
+  @Expose({ groups: [MaxGroup] })
   @ApiProperty({ example: 'DEV', description: '' })
   @IsString()
-  readonly positionCode: string;
+  @IsOptional()
+  readonly positionCode?: string;
 
-  @ManyToOne(() => Category)
+  @ManyToOne(() => Code)
   @JoinColumn({ name: 'positionCode', referencedColumnName: 'code' })
-  @Expose({ groups: [GROUP_USER] })
-  readonly position?: Category;
+  @Expose({ groups: [MaxGroup] })
+  readonly position?: Code;
 
   @Column()
-  @Expose({ groups: [GROUP_USER] })
+  @Expose({ groups: [MaxGroup] })
   @ApiProperty({ example: faker.date.past(), description: '' })
   @IsDateString()
-  readonly startDate?: Date;
+  startDate?: Date;
 
   @Column({ nullable: true, type: 'real' })
   @Expose()
   @ApiProperty({ example: faker.datatype.number({ min: 0.5, max: 12 }), description: '' })
   @IsNumber()
   @IsOptional()
-  dateLeave: number;
+  dateLeave?: number;
 
   @Column({ nullable: true, type: 'real', default: 0 })
   @Expose()

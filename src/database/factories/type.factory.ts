@@ -1,8 +1,8 @@
 import { setSeederFactory } from 'typeorm-extension';
-import { CategoryType } from '../../modules/category/type/type.entity';
+import { CodeType } from '@modules/code/type/type.entity';
 
-export default setSeederFactory(CategoryType, (faker) => {
-  const data = new CategoryType();
+export default setSeederFactory(CodeType, (faker) => {
+  const data = new CodeType();
   data.name = faker.name.jobType();
   data.code = faker.finance.bic();
 
