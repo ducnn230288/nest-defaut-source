@@ -16,6 +16,16 @@ jobs:
     # A list of available CircleCI Docker Convenience Images are available here: https://circleci.com/developer/images/image/cimg/node
     docker:
       - image: cimg/node:18.12.1
+      - image: cimg/postgres:10.17
+        environment:
+         POSTGRES_USER: postgres
+         POSTGRES_DB: postgres
+         POSTGRES_HOST_AUTH_METHOD: "trust"
+    environment:
+      NODE_ENV: test
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_HOST_AUTH_METHOD: "trust"
     # Then run your tests!
     # CircleCI will report the results back to your VCS provider.
     steps:
