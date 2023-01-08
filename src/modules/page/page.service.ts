@@ -17,6 +17,8 @@ export class PageService extends BaseService {
   constructor(
     @InjectRepository(Page)
     public readonly repo: Repository<Page>,
+    @InjectRepository(PageTranslation)
+    public readonly repoTranslation: Repository<PageTranslation>,
     private readonly dataSource: DataSource,
   ) {
     super(repo);
@@ -41,28 +43,16 @@ export class PageService extends BaseService {
     return data;
   }
 
-  async findHome() {
-    const data = await this.repo.findOne({
-      relations: ['translations'],
-      where: { isHomePage: true },
+  async findOneBySlug(slug: string, language: string) {
+    const data = await this.repoTranslation.findOne({
+      where: { slug, language },
       withDeleted: true,
-      cache: 60000,
-    });
-    if (!data) {
-      throw new NotFoundException(`data  Homepage not found`);
-    }
-    return data;
-  }
-
-  async findOneBySlug(slug: string) {
-    const data = await this.repo.findOne({
-      where: { slug },
-      withDeleted: true,
+      select: ['pageId'],
     });
     if (!data) {
       throw new NotFoundException(`data  #${slug} not found`);
     }
-    return data;
+    return await this.findOne(data.pageId);
   }
 
   async create(body: CreatePageRequestDto) {

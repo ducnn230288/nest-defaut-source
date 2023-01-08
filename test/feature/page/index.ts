@@ -13,34 +13,38 @@ export const testCase = (type?: string, permissions: string[] = []) => {
 
   const data: CreatePageRequestDto = {
     name: faker.name.jobType(),
-    slug: faker.lorem.slug(),
     style: 'style1',
-    isHomePage: true,
     translations: [
       {
         language: 'vn',
         title: faker.name.jobType(),
+        slug: faker.lorem.slug(),
+        seoDescription: faker.lorem.paragraph(),
       },
       {
         language: 'en',
+        slug: faker.lorem.slug(),
         title: faker.name.jobType(),
+        seoDescription: faker.lorem.paragraph(),
       },
     ],
   };
 
   const dataUpdate: UpdatePageRequestDto = {
     name: faker.name.jobType(),
-    slug: faker.lorem.slug(),
     style: 'style1',
-    isHomePage: true,
     translations: [
       {
         language: 'vn',
+        slug: faker.lorem.slug(),
         title: faker.name.jobType(),
+        seoDescription: faker.lorem.paragraph(),
       },
       {
         language: 'en',
+        slug: faker.lorem.slug(),
         title: faker.name.jobType(),
+        seoDescription: faker.lorem.paragraph(),
       },
     ],
   };
@@ -48,9 +52,7 @@ export const testCase = (type?: string, permissions: string[] = []) => {
   let result: Page = {
     id: faker.datatype.uuid(),
     name: faker.name.jobType(),
-    slug: faker.lorem.slug(),
     style: 'style1',
-    isHomePage: true,
   };
 
   const dataUpdateAll: AllPageRequestDto = {
@@ -102,34 +104,14 @@ export const testCase = (type?: string, permissions: string[] = []) => {
     }
   });
 
-  it('Get one [GET /page/home]', async () => {
+  it('Get one [GET /page/slug]', async () => {
     if (!type) {
       result = await BaseTest.moduleFixture.get(PageService).create(data);
     }
     const { body } = await request(BaseTest.server)
-      .get('/page/home')
+      .get('/page/slug?slug=' + result.translations[0].slug)
       .set('Authorization', 'Bearer ' + BaseTest.token)
-      .expect(HttpStatus.OK);
-    if (type) {
-      body.data.translations.forEach((item: any) => {
-        let index;
-        data.translations.forEach((subItem: any, i: number) => {
-          if (subItem.language === item.language) {
-            index = i;
-          }
-        });
-        expect(item).toEqual(jasmine.objectContaining(data.translations[index]));
-        dataUpdate.translations[index].id = item.id;
-      });
-      body.data.translations = data.translations;
-      expect(body.data).toEqual(jasmine.objectContaining(data));
-    }
-  });
-
-  it('Get one [GET /page/slug]', async () => {
-    const { body } = await request(BaseTest.server)
-      .get('/page/slug?slug=' + result.slug)
-      .set('Authorization', 'Bearer ' + BaseTest.token)
+      .set('Accept-Language', result.translations[0].language)
       .expect(HttpStatus.OK);
     if (type) {
       body.data.translations.forEach((item: any) => {
