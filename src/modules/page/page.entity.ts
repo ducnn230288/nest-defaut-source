@@ -18,23 +18,10 @@ export class Page extends Base {
 
   @Column({ nullable: true })
   @Expose()
-  @ApiProperty({ example: faker.lorem.slug(), description: '' })
-  @IsString()
-  @IsOptional()
-  slug: string;
-
-  @Column({ nullable: true })
-  @Expose()
   @ApiProperty({ example: 'style1', description: '' })
   @IsString()
   @IsOptional()
   style: string;
-
-  @Column({ default: false })
-  @Expose()
-  @ApiProperty({ example: false, description: '' })
-  @IsBoolean()
-  isHomePage: boolean;
 
   @Column({ nullable: true })
   @Expose()

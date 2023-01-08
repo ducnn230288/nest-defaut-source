@@ -28,18 +28,6 @@ export class PageController {
       data: result,
     };
   }
-
-  @Public({
-    summary: 'Get Detail data is home',
-    serializeOptions: { groups: [MaxGroup, RelationGroup] },
-  })
-  @Get('/home')
-  async findHome(@I18n() i18n: I18nContext): Promise<PageResponseDto> {
-    return {
-      message: i18n.t('common.Get Detail Success'),
-      data: await this.service.findHome(),
-    };
-  }
   @Public({
     summary: 'Get Detail data by slug',
     serializeOptions: { groups: [MaxGroup, RelationGroup] },
@@ -51,7 +39,7 @@ export class PageController {
   ): Promise<PageResponseDto> {
     return {
       message: i18n.t('common.Get Detail Success'),
-      data: await this.service.findOneBySlug(query.slug),
+      data: await this.service.findOneBySlug(query.slug, i18n.lang),
     };
   }
 
@@ -125,7 +113,7 @@ export class PageController {
   async remove(@I18n() i18n: I18nContext, @Param('id') id: string): Promise<PageResponseDto> {
     return {
       message: i18n.t('common.Delete Success'),
-      data: await this.service.remove(id),
+      data: await this.service.removeHard(id),
     };
   }
 }

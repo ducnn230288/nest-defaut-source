@@ -22,6 +22,19 @@ export class PageTranslation extends Base {
   @IsString()
   title: string;
 
+  @Column({ nullable: true })
+  @Expose()
+  @ApiProperty({ example: faker.lorem.slug(), description: '' })
+  @IsString()
+  @IsOptional()
+  slug: string;
+
+  @Column({ nullable: true })
+  @Expose()
+  @ApiProperty({ example: faker.lorem.paragraph(), description: '' })
+  @IsString()
+  seoDescription: string;
+
   @Column({
     type: 'jsonb',
     array: false,
