@@ -11,6 +11,7 @@ import { Page } from '@modules/page/page.entity';
 import { AuthService } from './auth.service';
 import { AccessTokenStrategy } from './accessToken.strategy';
 import { RefreshTokenStrategy } from './refreshToken.strategy';
+import { ResetPasswordTokenStrategy } from './resetPasswordToken.strategy';
 import { AuthController } from './auth.controller';
 
 @Module({
@@ -27,7 +28,7 @@ import { AuthController } from './auth.controller';
     MailModule,
   ],
   controllers: [AuthController],
-  providers: [AccessTokenStrategy, RefreshTokenStrategy, AuthService],
+  providers: [AccessTokenStrategy, RefreshTokenStrategy, ResetPasswordTokenStrategy, AuthService],
   exports: [AuthService],
 })
 export class AuthModule {}

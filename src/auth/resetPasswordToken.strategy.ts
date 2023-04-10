@@ -4,12 +4,11 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 
 import { User } from '@modules/user/user.entity';
 
 @Injectable()
-export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+export class ResetPasswordTokenStrategy extends PassportStrategy(Strategy, 'jwt-reset-password') {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -17,7 +16,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refres
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_REFRESH_SECRET,
+      secretOrKey: process.env.JWT_RESET_PASSWORD_SECRET,
       passReqToCallback: true,
     });
   }
@@ -27,14 +26,9 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refres
       .createQueryBuilder('base')
       .andWhere(`base.id=:id`, { id: payload.userId })
       .andWhere(`base.email=:email`, { email: payload.email })
+      .andWhere(`base.resetPasswordToken=:data`, { data: req.get('Authorization').replace('Bearer', '').trim() })
       .getOne();
-    if (!user || !user.refreshToken) throw new UnauthorizedException();
-
-    const refreshTokenMatches = await bcrypt.compare(
-      req.get('Authorization').replace('Bearer', '').trim(),
-      user.refreshToken,
-    );
-    if (!refreshTokenMatches) throw new UnauthorizedException();
+    if (!user || !user.resetPasswordToken) throw new UnauthorizedException();
 
     return user;
   }

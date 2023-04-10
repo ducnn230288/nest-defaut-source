@@ -8,17 +8,14 @@ export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendUserConfirmation(user: User, token: string) {
-    const url = `example.com/auth/confirm?token=${token}`;
-
     await this.mailerService.sendMail({
       to: user.email,
-      // from: '"Support Team" <support@example.com>', // override default from
-      subject: 'Welcome to Nice App! Confirm your Email',
-      template: './confirmation', // `.hbs` extension is appended automatically
+      from: '"Support Team" <no-reply@ari.com.vn>',
+      subject: 'Welcome to Ari! We got a request to Reset Password',
+      template: './confirmation',
       context: {
-        // ✏️ filling curly brackets with content
         name: user.name,
-        url,
+        url: process.env.DOMAIN_FE + 'auth/reset-password?token=' + token,
       },
     });
   }

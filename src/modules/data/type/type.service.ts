@@ -19,33 +19,22 @@ export class DataTypeService extends BaseService {
     super(repo);
   }
 
-  async findCode(codes: string[]) {
+  async findArrayCode(codes: string[]) {
     const tempData: { [key: string]: DataType } = {};
     for (const code of codes) {
-      const data = await this.repo.findOne({
-        where: { code },
-        withDeleted: true,
-        order: {
-          items: {
-            order: 'ASC',
-            createdAt: 'ASC',
-          },
-        },
-      });
-      if (!data) {
-        throw new NotFoundException(`data  ${code} not found`);
-      }
-      tempData[code] = data;
+      tempData[code] = await this.findCode(code);
     }
-
     return tempData;
   }
 
-  async findOneCode(code: string) {
-    const data = await this.repo.findOne({
-      where: { code },
-      withDeleted: true,
-    });
+  async findCode(code: string) {
+    const data = await this.repo
+      .createQueryBuilder('base')
+      .where(`base.code=:code`, { code })
+      .leftJoinAndMapMany('base.items', 'Data', 'data', 'base.code = data.type')
+      .addOrderBy('data.createdAt', 'ASC')
+      .withDeleted()
+      .getOne();
     if (!data) {
       throw new NotFoundException(`data  ${code} not found`);
     }

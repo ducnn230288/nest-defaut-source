@@ -21,6 +21,14 @@ export class PaginationQueryDto {
   sorts?: any;
 
   @IsOptional()
+  @Transform(({ value }) => JSON.parse(value))
+  extend?: string | object;
+
+  @IsOptional()
+  @Transform(({ value }) => JSON.parse(value))
+  skip?: string | object;
+
+  @IsOptional()
   fullTextSearch?: string;
 
   where?: object[];

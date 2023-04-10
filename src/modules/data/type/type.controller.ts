@@ -1,20 +1,20 @@
 import { Body, Delete, Get, Param, Post, Put, Query, ValidationPipe } from '@nestjs/common';
 import { I18n, I18nContext } from 'nestjs-i18n';
 
-import { Auth, Headers, PaginationQueryDto, Public, SerializerBody, MaxGroup, RelationGroup } from '@common';
+import { Auth, Headers, MaxGroup, PaginationQueryDto, Public, RelationGroup, SerializerBody } from '@common';
 import {
-  DataTypeResponseDto,
-  ListDataTypeResponseDto,
   ArrayDataTypeResponseDto,
   CreateDataTypeRequestDto,
+  DataTypeResponseDto,
+  ListDataTypeResponseDto,
   UpdateDataTypeRequestDto,
 } from './dto';
 import {
   DataTypeService,
-  P_DATA_TYPE_LISTED,
   P_DATA_TYPE_CREATE,
-  P_DATA_TYPE_UPDATE,
   P_DATA_TYPE_DELETE,
+  P_DATA_TYPE_LISTED,
+  P_DATA_TYPE_UPDATE,
 } from './type.service';
 
 @Headers('data-type')
@@ -49,7 +49,7 @@ export class DataTypeController {
   ): Promise<ArrayDataTypeResponseDto> {
     return {
       message: i18n.t('common.Get Detail Success'),
-      data: await this.service.findCode(query.array),
+      data: await this.service.findArrayCode(query.array),
     };
   }
 
@@ -61,7 +61,7 @@ export class DataTypeController {
   async findOne(@I18n() i18n: I18nContext, @Param('code') code: string): Promise<DataTypeResponseDto> {
     return {
       message: i18n.t('common.Get Detail Success'),
-      data: await this.service.findOneCode(code),
+      data: await this.service.findCode(code),
     };
   }
 

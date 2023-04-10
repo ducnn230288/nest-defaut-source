@@ -20,10 +20,12 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: { userId: string; email: string }) {
-    const user = await this.userRepository.findOne({
-      where: { id: payload.userId, email: payload.email },
-    });
-
+    const user = await this.userRepository
+      .createQueryBuilder('base')
+      .andWhere(`base.id=:id`, { id: payload.userId })
+      .andWhere(`base.email=:email`, { email: payload.email })
+      .leftJoinAndSelect('base.role', 'role')
+      .getOne();
     if (!user || !user.refreshToken) {
       throw new UnauthorizedException();
     }

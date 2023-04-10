@@ -8,7 +8,10 @@ export class CodeTypeSeeder implements Seeder {
     const repository = dataSource.getRepository(CodeType);
     const data: CodeType = { name: 'Position', code: 'POS', isPrimary: true };
 
-    const dataExists = await repository.findOneBy({ code: data.code });
+    const dataExists = await repository
+      .createQueryBuilder('base')
+      .andWhere(`base.code=:code`, { code: data.code })
+      .getOne();
 
     if (!dataExists) {
       const newData = repository.create(data);

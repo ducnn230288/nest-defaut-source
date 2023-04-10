@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository, Not, IsNull } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { BaseService } from '@common';
 import { Page } from './page.entity';
 import { PageTranslation } from '@modules/page/translation/translation.entity';
 import { AllPageRequestDto, CreatePageRequestDto, ItemPageRequestDto, UpdatePageRequestDto } from '@modules/page/dto';
+import { DataTranslation } from '@modules/data/translation/translation.entity';
 
 export const P_PAGE_LISTED = '6ac2a002-3f26-40d1-ac56-61c681af832f';
 export const P_PAGE_CREATE = '5f877438-33b5-4145-baf9-9e9576c540f7';
@@ -22,21 +23,17 @@ export class PageService extends BaseService {
     private readonly dataSource: DataSource,
   ) {
     super(repo);
+    this.listJoin = ['translations'];
   }
 
   async findAllParent() {
-    const data = await this.repo.findAndCount({
-      where: { parentId: IsNull() },
-      relations: ['children'],
-      withDeleted: true,
-      cache: 60000,
-      order: {
-        order: 'ASC',
-        children: {
-          order: 'ASC',
-        },
-      },
-    });
+    const data = await this.repo
+      .createQueryBuilder('base')
+      .andWhere(`base.parentId IS NULL`)
+      .leftJoinAndMapMany('base.children', 'Page', 'page', 'base.parentId = data.id')
+      .addOrderBy('base.order', 'ASC')
+      .addOrderBy('page.order', 'ASC')
+      .getManyAndCount();
     if (!data) {
       throw new NotFoundException(`data  Homepage not found`);
     }
@@ -44,11 +41,12 @@ export class PageService extends BaseService {
   }
 
   async findOneBySlug(slug: string, language: string) {
-    const data = await this.repoTranslation.findOne({
-      where: { slug, language },
-      withDeleted: true,
-      select: ['pageId'],
-    });
+    const data = await this.repoTranslation
+      .createQueryBuilder('base')
+      .andWhere(`base.slug=:slug`, { slug })
+      .andWhere(`base.language=:language`, { language })
+      .select(['pageId'])
+      .getOne();
     if (!data) {
       throw new NotFoundException(`data  #${slug} not found`);
     }
@@ -60,15 +58,21 @@ export class PageService extends BaseService {
     await this.dataSource.transaction(async (entityManager) => {
       result = await entityManager.save(entityManager.create(Page, { ...body }));
       for (const item of body.translations) {
-        const existingTitle = await entityManager.count(PageTranslation, {
-          where: { title: item.title, language: item.language },
-        });
+        const existingTitle = await entityManager
+          .createQueryBuilder(PageTranslation, 'base')
+          .andWhere(`base.title=:title`, { title: item.title })
+          .andWhere(`base.language=:language`, { language: item.language })
+          .withDeleted()
+          .getCount();
         if (existingTitle) {
           throw new BadRequestException(`title is already taken`);
         }
-        // const existingSlug = await entityManager.count(PageTranslation, {
-        //   where: { slug: item.slug },
-        // });
+        // const existingSlug = await entityManager
+        //   .createQueryBuilder(PageTranslation, 'base')
+        //   .andWhere(`base.title=:slug`, { slug: item.slug })
+        //   .andWhere(`base.language=:language`, { language: item.language })
+        //   .withDeleted()
+        //   .getCount();
         // if (existingSlug) {
         //   throw new BadRequestException(`slug is already taken`);
         // }
@@ -90,15 +94,23 @@ export class PageService extends BaseService {
       }
       result = await this.repo.save(data);
       for (const item of body.translations) {
-        const existingTitle = await entityManager.count(PageTranslation, {
-          where: { title: item.title, language: item.language, pageId: Not(id) },
-        });
+        const existingTitle = await entityManager
+          .createQueryBuilder(DataTranslation, 'base')
+          .andWhere(`base.title=:title`, { title: item.title })
+          .andWhere(`base.language=:language`, { language: item.language })
+          .andWhere(`base.dataId != :dataId`, { dataId: id })
+          .withDeleted()
+          .getCount();
         if (existingTitle) {
           throw new BadRequestException(`title is already taken`);
         }
-        // const existingSlug = await entityManager.count(PageTranslation, {
-        //   where: { slug: item.slug, pageId: Not(id) },
-        // });
+        // const existingSlug = await entityManager
+        //   .createQueryBuilder(DataTranslation, 'base')
+        //   .andWhere(`base.slug=:slug`, { slug: item.slug })
+        //   .andWhere(`base.language=:language`, { language: item.language })
+        //   .andWhere(`base.dataId != :dataId`, { dataId: id })
+        //   .withDeleted()
+        //   .getCount();
         // if (existingSlug) {
         //   throw new BadRequestException(`slug is already taken`);
         // }

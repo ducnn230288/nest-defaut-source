@@ -3,14 +3,19 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { S3 } from 'aws-sdk';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { BaseService } from '@common';
 import { MailService } from '@mail/mail.service';
 import { User } from '@modules/user/user.entity';
 import { Data } from '@modules/data/data.entity';
 import { Page } from '@modules/page/page.entity';
-import { LoginAuthRequestDto, RegisterAuthRequestDto } from './dto';
+import {
+  ForgottenPasswordAuthRequestDto,
+  LoginAuthRequestDto,
+  RegisterAuthRequestDto,
+  RestPasswordAuthRequestDto,
+} from './dto';
 
 export const P_AUTH_DELETE_IMAGE_TEMP = '11cc566b-b109-49f8-983f-84ff08f9849e';
 
@@ -69,16 +74,46 @@ export class AuthService extends BaseService {
     return await this.repo.update(user.id, { refreshToken: null });
   }
 
-  async login(loginAuthDto: LoginAuthRequestDto) {
-    const user = await this.repo.findOne({
-      where: { email: loginAuthDto.email },
-      relations: ['position'],
-      select: {
-        position: {
-          name: true,
-        },
+  async forgottenPassword(body: ForgottenPasswordAuthRequestDto) {
+    const user = await this.repo
+      .createQueryBuilder('base')
+      .andWhere(`base.email=:email`, { email: body.email })
+      .getOne();
+
+    if (!user) {
+      throw new UnauthorizedException(`Invalid email!`);
+    }
+    user.resetPasswordToken = await this.jwtService.signAsync(
+      {
+        userId: user.id,
+        email: user.email,
       },
-    });
+      {
+        secret: process.env.JWT_RESET_PASSWORD_SECRET,
+        expiresIn: process.env.JWT_EXPIRATION_TIME,
+      },
+    );
+    await this.update(user.id, user);
+    await this.mailService.sendUserConfirmation(user, user.resetPasswordToken);
+    return true;
+  }
+
+  async resetPassword(body: RestPasswordAuthRequestDto, user: User) {
+    if (body.password === body.retypedPassword) {
+      await this.update(user.id, { password: body.password, resetPasswordToken: null });
+    } else {
+      throw new UnauthorizedException(`Password do not match!`);
+    }
+    return true;
+  }
+
+  async login(loginAuthDto: LoginAuthRequestDto) {
+    const user = await this.repo
+      .createQueryBuilder('base')
+      .andWhere(`base.email=:email`, { email: loginAuthDto.email })
+      .leftJoinAndSelect('base.role', 'role')
+      .leftJoinAndSelect('base.position', 'position')
+      .getOne();
 
     if (!user) {
       throw new UnauthorizedException(`User ${loginAuthDto.email} not found!`);
@@ -95,9 +130,10 @@ export class AuthService extends BaseService {
       throw new BadRequestException(['Passwords are not identical']);
     }
 
-    const existingUser = await this.repo.findOne({
-      where: [{ email: createUserDto.email }],
-    });
+    const existingUser = await this.repo
+      .createQueryBuilder('base')
+      .andWhere(`base.email=:email`, { email: createUserDto.email })
+      .getOne();
 
     if (existingUser) {
       throw new BadRequestException(['email is already taken']);
@@ -154,13 +190,16 @@ export class AuthService extends BaseService {
     });
   }
   async checkDeleteFile(fileName: string) {
-    let data = await this.repo.count({
-      where: { avatar: Like('%' + fileName) },
-    });
+    let data = await this.repo
+      .createQueryBuilder('base')
+      .andWhere(`base.avatar like :avatar`, { avatar: '%' + fileName })
+      .getCount();
+
     if (!data) {
-      data = await this.repoData.count({
-        where: { image: Like('%' + fileName) },
-      });
+      data = await this.repoData
+        .createQueryBuilder('base')
+        .andWhere(`base.image like :image`, { image: '%' + fileName })
+        .getCount();
     }
     // if (!data) {
     //   const dataTemp = await this.repoPage.find({});

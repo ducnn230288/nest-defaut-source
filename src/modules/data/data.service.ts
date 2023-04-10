@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Not, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { BaseService } from '@common';
 import { Data } from './data.entity';
@@ -20,6 +20,7 @@ export class DataService extends BaseService {
     private readonly dataSource: DataSource,
   ) {
     super(repo);
+    this.listJoin = ['translations'];
   }
 
   async create(body: CreateDataRequestDto) {
@@ -27,9 +28,12 @@ export class DataService extends BaseService {
     await this.dataSource.transaction(async (entityManager) => {
       result = await entityManager.save(entityManager.create(Data, { ...body }));
       for (const item of body.translations) {
-        const existingName = await entityManager.count(DataTranslation, {
-          where: { name: item.name, language: item.language },
-        });
+        const existingName = await entityManager
+          .createQueryBuilder(DataTranslation, 'base')
+          .andWhere(`base.name=:name`, { name: item.name })
+          .andWhere(`base.language=:language`, { language: item.language })
+          .withDeleted()
+          .getCount();
         if (existingName) {
           throw new BadRequestException(`name is already taken`);
         }
@@ -51,9 +55,13 @@ export class DataService extends BaseService {
       }
       result = await this.repo.save(data);
       for (const item of body.translations) {
-        const existingName = await entityManager.count(DataTranslation, {
-          where: { name: item.name, language: item.language, dataId: Not(id) },
-        });
+        const existingName = await entityManager
+          .createQueryBuilder(DataTranslation, 'base')
+          .andWhere(`base.name=:name`, { name: item.name })
+          .andWhere(`base.language=:language`, { language: item.language })
+          .andWhere(`base.dataId != :dataId`, { dataId: id })
+          .withDeleted()
+          .getCount();
         if (existingName) {
           throw new BadRequestException(`name is already taken`);
         }

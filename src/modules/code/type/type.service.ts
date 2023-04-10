@@ -21,10 +21,14 @@ export class CodeTypeService extends BaseService {
   }
 
   async findOneCode(code: string) {
-    const data = await this.repo.findOne({
-      where: { code },
-      withDeleted: true,
-    });
+    const data = await this.repo
+      .createQueryBuilder('base')
+      .where(`base.code=:code`, { code })
+      .leftJoinAndMapMany('base.items', 'Code', 'code', 'base.code = code.type')
+      .addOrderBy('code.createdAt', 'ASC')
+      .withDeleted()
+      .getOne();
+
     if (!data) {
       throw new NotFoundException(`data  ${code} not found`);
     }

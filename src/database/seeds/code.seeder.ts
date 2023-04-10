@@ -25,11 +25,14 @@ export class CodeSeeder implements Seeder {
     ];
 
     for (const data of listData) {
-      const dataExists = await repository.findOneBy({ code: data.code });
+      const dataExists = await repository
+        .createQueryBuilder('base')
+        .andWhere(`base.code=:code`, { code: data.code })
+        .getOne();
 
       if (!dataExists) {
-        const newData = repository.create(data);
-        await repository.save(newData);
+        let newData = repository.create(data);
+        newData = await repository.save(newData);
       }
     }
 

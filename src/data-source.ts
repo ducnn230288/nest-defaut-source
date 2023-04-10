@@ -13,6 +13,7 @@ import { DataTranslation } from '@modules/data/translation/translation.entity';
 import { DataType } from '@modules/data/type/type.entity';
 import { Page } from '@modules/page/page.entity';
 import { PageTranslation } from '@modules/page/translation/translation.entity';
+import { member1669372347132 } from '@database/migrations/1668566358184-member';
 
 const options: DataSourceOptions & SeederOptions = {
   type: 'postgres',
@@ -22,7 +23,7 @@ const options: DataSourceOptions & SeederOptions = {
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
   entities: [CodeType, Code, User, UserRole, Page, PageTranslation, Data, DataTranslation, DataType],
-  migrations: [`${__dirname}/**/database/migrations/*.{ts,js}`],
+  migrations: [member1669372347132],
   seeds: [MainSeeder],
 };
 export const AppDataSource = new DataSource(options);

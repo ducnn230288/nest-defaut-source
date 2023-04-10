@@ -18,5 +18,6 @@ export class CodeService extends BaseService {
     public repo: Repository<Code>,
   ) {
     super(repo);
+    this.listQuery = ['code', 'name', 'description'];
   }
 }

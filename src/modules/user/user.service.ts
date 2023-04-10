@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as dayjs from 'dayjs';
 
 import { BaseService } from '@common';
 import { CreateUserRequestDto } from './dto';
@@ -19,21 +20,24 @@ export class UserService extends BaseService {
     public repo: Repository<User>,
   ) {
     super(repo);
+    this.listQuery = ['name', 'email', 'phoneNumber'];
+    this.listJoin = ['team', 'position'];
   }
 
-  async create(createUserDto: CreateUserRequestDto) {
-    if (createUserDto.password !== createUserDto.retypedPassword) {
+  async create(body: CreateUserRequestDto) {
+    if (body.password !== body.retypedPassword) {
       throw new BadRequestException(['Passwords are not identical']);
     }
 
-    const existingUser = await this.repo.findOne({
-      where: [{ email: createUserDto.email }],
-    });
+    const existingUser = await this.repo
+      .createQueryBuilder('base')
+      .andWhere(`base.email=:email`, { email: body.email })
+      .getOne();
 
     if (existingUser) {
       throw new BadRequestException(['email is already taken']);
     }
-    const user = this.repo.create(createUserDto);
+    const user = this.repo.create(body);
     return await this.repo.save(user);
   }
 
@@ -47,5 +51,41 @@ export class UserService extends BaseService {
     }
     delete data.password;
     return this.repo.save(data);
+  }
+
+  async history(newData: User, status = 'UPDATED') {
+    const originalID = newData.id;
+    if (status === 'UPDATED') {
+      const oldData = await this.repoHistory
+        .createQueryBuilder('base')
+        .where('base.originalID = :originalID', { originalID })
+        .orderBy('base.createdAt', 'DESC')
+        .getOne();
+      if (oldData) {
+        const keys: string[] = ['name', 'avatar', 'email', 'phoneNumber', 'description'];
+        let checkDifferent = false;
+        keys.forEach((key: string) => {
+          if (!checkDifferent && newData[key]?.toString() != oldData[key]?.toString()) {
+            checkDifferent = true;
+          }
+        });
+        if (!checkDifferent) {
+          const keysDate = ['dob'];
+          keysDate.forEach((key: string) => {
+            if (!checkDifferent && dayjs(oldData[key]).toISOString() != dayjs(newData[key]).toISOString()) {
+              checkDifferent = true;
+            }
+          });
+        }
+        if (!checkDifferent) {
+          return false;
+        }
+      }
+    }
+
+    delete newData.id;
+    delete newData.createdAt;
+    const data = this.repoHistory.create({ ...newData, originalID, action: status });
+    await this.repoHistory.save(data);
   }
 }

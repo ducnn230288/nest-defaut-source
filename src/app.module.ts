@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
-import { join } from 'path';
+import { join, resolve } from 'path';
 
 import { AuthModule } from '@auth/auth.module';
 import { CodeTypeModule } from '@modules/code/type/type.module';
@@ -14,7 +14,7 @@ import { DataModule } from '@modules/data/data.module';
 import { PageModule } from '@modules/page/page.module';
 import { PageTranslationModule } from '@modules/page/translation/translation.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { resolve } from 'path';
+
 @Module({
   imports: [
     ServeStaticModule.forRoot(
@@ -37,7 +37,7 @@ import { resolve } from 'path';
         password: process.env.DATABASE_PASSWORD,
         database: process.env.DATABASE_NAME,
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: process.env.NODE_ENV !== 'prod',
       }),
     }),
     ConfigModule.forRoot({

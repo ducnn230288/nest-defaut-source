@@ -1,10 +1,9 @@
 import { Body, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { I18n, I18nContext } from 'nestjs-i18n';
-import * as moment from 'moment';
 
-import { Auth, Headers, SerializerBody, PaginationQueryDto, MaxGroup } from '@common';
-import { CreateUserRequestDto, UpdateUserRequestDto, ListUserResponseDto, UserResponseDto } from './dto';
-import { UserService, P_USER_LISTED, P_USER_DETAIL, P_USER_CREATE, P_USER_UPDATE, P_USER_DELETE } from './user.service';
+import { Auth, Headers, MaxGroup, OnlyUpdateGroup, PaginationQueryDto, SerializerBody } from '@common';
+import { CreateUserRequestDto, ListUserResponseDto, UpdateUserRequestDto, UserResponseDto } from './dto';
+import { P_USER_CREATE, P_USER_DELETE, P_USER_DETAIL, P_USER_LISTED, P_USER_UPDATE, UserService } from './user.service';
 
 @Headers('user')
 export class UserController {
@@ -45,12 +44,13 @@ export class UserController {
   @Post()
   async create(
     @I18n() i18n: I18nContext,
-    @Body(new SerializerBody([MaxGroup])) createData: CreateUserRequestDto,
+    @Body(new SerializerBody([MaxGroup, OnlyUpdateGroup])) createData: CreateUserRequestDto,
   ): Promise<any> {
-    createData.dateLeave = moment().endOf('year').diff(createData.startDate, 'months');
+    const data = await this.service.create(createData);
+    // await this.service.history(data, 'CREATED');
     return {
       message: i18n.t('common.Create Success'),
-      data: await this.service.create(createData),
+      data: data,
     };
   }
 
@@ -65,10 +65,11 @@ export class UserController {
     @Param('id') id: string,
     @Body(new SerializerBody([MaxGroup])) updateData: UpdateUserRequestDto,
   ): Promise<UserResponseDto> {
-    updateData.dateLeave = moment().endOf('year').diff(updateData.startDate, 'months');
+    const data = await this.service.update(id, updateData);
+    // await this.service.history(data);
     return {
       message: i18n.t('common.Update Success'),
-      data: await this.service.update(id, updateData),
+      data: data,
     };
   }
 
