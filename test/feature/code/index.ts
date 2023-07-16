@@ -73,6 +73,7 @@ export const testCase = (type?: string, permissions: string[] = []) => {
       .expect(type ? HttpStatus.OK : HttpStatus.FORBIDDEN);
     if (type) {
       expect(body.data).toEqual(jasmine.objectContaining(dataType));
+
     }
   });
 
